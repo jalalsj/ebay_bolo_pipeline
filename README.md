@@ -53,7 +53,7 @@ graph TD
         E & F --> G["Calculate STR\n(Sold / Active) × 100"]
     end
 
-    G --> H{"STR ≥ 100%\n& Avg Price ≥ $35?"}
+    G --> H{"STR ≥ 100%\n& Avg Price ≥ $30?"}
     H -->|"Yes — BOLO"| I["Save to CSV / DB"]
     H -->|"No"| J["Discard"]
     I --> K["Newsletter Engine"]
@@ -114,7 +114,7 @@ Est. Net Profit = Avg Sold Price - COGS - eBay Fees (13%) - Shipping ($8.99)
 | Criterion | Threshold |
 | :--- | :--- |
 | Item Condition | Pre-owned only |
-| Minimum Avg. Sale Price | >= $35 |
+| Minimum Avg. Sale Price | >= $30 |
 | Cost of Goods Sold (COGS) | $7.00 default (thrift store); configurable via `--cogs` flag |
 | eBay Platform Fees | ~13% of sale price (final value fee + payment processing) |
 | Estimated Shipping Cost | $8.99 default — USPS Ground Advantage, mid-weight clothing (1–2 lbs) with eBay seller discount; configurable via `--shipping` flag |
