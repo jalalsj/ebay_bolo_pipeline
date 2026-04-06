@@ -19,6 +19,13 @@ Never use the `# ── Title ────` style.
 - **Code**: max 79 characters per line
 - Use implicit line continuation inside brackets `()` to wrap long lines
 
+### Markdown Line Limits
+- **Prose** (paragraphs, bullet points): wrap at 72 characters
+- **Tables**: exempt — wrapping breaks rendering
+- **Code blocks**: exempt — follow the code's own conventions
+- Note: a single line break in markdown renders as a space, not a
+  new line. Wrapping prose only affects raw file readability.
+
 ### Docstring Indentation
 - Section headings (Assumes, Args, Returns): 4-space indent
 - Bullet items under a heading: 4-space indent + `- `
