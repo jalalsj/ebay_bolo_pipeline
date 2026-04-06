@@ -44,7 +44,7 @@ def sell_through_rate(sold: int, active: int) -> float:
     if sold == 0 and active == 0:
         return 0.0
 
-    # Case 3: Negative sold volume (sraper fault)
+    # Case 3: Negative sold volume (scraper fault)
     if sold < 0:
         raise ValueError(f"sold cannot be negative: {sold}")
 
