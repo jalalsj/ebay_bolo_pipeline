@@ -74,3 +74,25 @@ def example(total_transaction: float) -> float:
 - One feature per branch: `feature/<name>`
 - One commit per feature once all tests pass
 - Only commit files that belong to that feature
+
+### Merging Strategy
+- Always branch off `main`: `git checkout main` before creating
+  a new feature branch
+- Use **squash merge** when merging features into main:
+  `git merge --squash feature/<name>`
+- Write a single clean commit message after squashing — this is
+  the message that lands on main, so make it meaningful
+- Delete the feature branch after merging:
+  `git branch -d feature/<name>`
+- Never use regular merge or rebase — squash keeps main linear
+  and readable without losing feature branch history
+
+### Commit Message Format
+```
+<type>: <short description>
+
+- file.py: what changed and why
+- file.py: what changed and why
+```
+
+Types: `feat`, `fix`, `style`, `chore`, `docs`, `test`
