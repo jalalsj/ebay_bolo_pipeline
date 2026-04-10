@@ -63,13 +63,14 @@ def parse_brands_from_lhn(html: str) -> list[str]:
     soup = BeautifulSoup(html, "lxml")
     brands: list[str] = []
 
-    # Strategy 1: heading containing "Brand" + sibling <li> items
-    for heading in soup.find_all(
-        ["h3", "h2", "span", "div"],
-        string=re.compile(r"brand", re.I)
+    # Strategy 1: find the Brand heading by its known container class,
+    # walk up to the enclosing <li>, grab all <a> links inside
+    for title_div in soup.find_all(
+        class_="x-refine__item__title-container"
     ):
-        # Walk up to the parent container that holds the list
-        container = heading.find_parent(["section", "div", "ul"])
+        if title_div.get_text(strip=True).lower() != "brand":
+            continue
+        container = title_div.find_parent("li")
         if container is None:
             continue
 
@@ -134,11 +135,16 @@ def parse_brands_from_lhn(html: str) -> list[str]:
 
 def _clean_brand_text(raw: str) -> str:
     """
-    Strip count suffixes like '(91)' and whitespace from a brand label.
+    Strip count suffixes and noise from a brand label.
 
-    Example: '  Faherty (91)\\n' → 'Faherty'
+    Examples:
+      '  Faherty (91)\\n'               → 'Faherty'
+      'Polo Ralph Lauren (9,674) Items' → 'Polo Ralph Lauren'
     """
-    cleaned = re.sub(r"\s*\(\d+\)\s*", "", raw).strip()
+    # Remove everything from the first '(' onwards
+    cleaned = re.split(r"\s*\(", raw)[0].strip()
+    # Also strip trailing "Items" in case it appears without parens
+    cleaned = re.sub(r"\s*Items\s*$", "", cleaned).strip()
     return cleaned
 
 
@@ -165,7 +171,7 @@ async def scout_brands(
     Fetch the eBay category page and return a list of brand candidates.
 
     Args:
-        session:      Shared aiohttp.ClientSession from build_session().
+        session:      BrowserSession from http_client.build_session().
         category_url: eBay search URL to scrape (defaults to config).
         dump_html:    If True, writes raw HTML to data/raw/ for debug.
 

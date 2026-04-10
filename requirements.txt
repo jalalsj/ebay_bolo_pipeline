@@ -1,5 +1,5 @@
 # ── Core Pipeline ────────────────────────────────────────────────────────────
-aiohttp==3.9.5          # async HTTP client (Stage 2 concurrent requests)
+playwright==1.58.0      # headless Chrome — solves eBay's JS challenges
 beautifulsoup4==4.12.3  # HTML parsing (LHN sidebar, listing pages)
 lxml==5.2.1             # fast parser backend for BeautifulSoup4
 pandas==2.2.2           # data processing, CSV output, STR calculations

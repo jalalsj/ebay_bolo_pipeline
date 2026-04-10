@@ -26,14 +26,14 @@ from config import (
 # Strings eBay injects into challenge / block pages.
 # Any one of these in the response body signals we should back off.
 _SOFT_BAN_SIGNALS = [
+    "pardon our interruption",
     "verify you are a human",
-    "security measure",
-    "captcha",
+    "please complete the security check",
     "unusual activity",
     "access to this page has been denied",
     "robot or automated",
     "ebay is temporarily unavailable",
-    "please complete the security check",
+    "checking your browser before you access",
 ]
 
 

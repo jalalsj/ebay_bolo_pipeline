@@ -91,12 +91,6 @@ def ebay_fees(total_transaction: float) -> float:
             f"total_transaction cannot be negative: {total_transaction}"
         )
     
-    # Case 2: Zero total_transaction, e.g. $0 sale + free shipping
-    if total_transaction == 0.01:
-        return round(
-            EBAY_FEE_RATE * total_transaction + EBAY_PER_ORDER_FEE, 2
-        )
-
     # Standard calculation
     return round(EBAY_FEE_RATE * total_transaction + EBAY_PER_ORDER_FEE, 2)
 

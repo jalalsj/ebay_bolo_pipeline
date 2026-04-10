@@ -27,9 +27,9 @@ BASE_CATEGORY_URL = (
 #=======================================================================
 
 # Max brands fetched concurrently in Stage 2.
-# At 2 requests/brand, SEMAPHORE_LIMIT=3 → max 6 open connections.
-# Scale up to 5 only after confirming no 429s over several weeks.
-SEMAPHORE_LIMIT = 3
+# Playwright uses a single browser tab, so only 1 brand can
+# be in-flight at a time. Keep at 1 to avoid navigation races.
+SEMAPHORE_LIMIT = 1
 
 # Sleep seconds after each brand completes, before the next starts.
 # Randomised so requests don't fall into a detectable fixed rhythm.
@@ -106,26 +106,3 @@ USER_AGENTS = [
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
 ]
 
-#=======================================================================
-# HTTP — BASE HEADERS
-#=======================================================================
-
-# Headers every real browser sends. Missing these is one of the
-# clearest bot signals. User-Agent is injected separately
-# (rotated per request) — not set here.
-BASE_HEADERS = {
-    "Accept": (
-        "text/html,application/xhtml+xml,application/xml;"
-        "q=0.9,image/avif,image/webp,*/*;q=0.8"
-    ),
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
-    "DNT": "1",
-    "Connection": "keep-alive",
-    "Upgrade-Insecure-Requests": "1",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-    "Cache-Control": "max-age=0",
-}

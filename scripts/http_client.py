@@ -1,18 +1,34 @@
 """
-Shared aiohttp session factory with anti-ban measures:
+Shared HTTP client using Playwright (headless Chrome):
 
-  1. Browser-like headers injected on every request
+  1. Real browser engine — solves eBay's Argon2 proof-of-work
+     challenge automatically (no CAPTCHA bypass hacks needed)
   2. Per-request User-Agent rotation from the configured pool
   3. tenacity retry with exponential backoff on 429, 503, errors
   4. Soft-ban detection — raises SoftBanError before wasting time
+  5. Warm-up request to establish cookies before real scraping
+
+Why Playwright instead of aiohttp / curl_cffi?
+  eBay serves a JavaScript proof-of-work challenge page
+  ("Pardon Our Interruption") that computes an Argon2 hash
+  before redirecting to the real content. Neither aiohttp nor
+  curl_cffi can execute JavaScript, so they get stuck on the
+  challenge page forever. Playwright runs real Chromium and
+  solves the challenge transparently.
 """
 
+import asyncio
 import logging
 import random
 
-import aiohttp
+from playwright.async_api import (
+    async_playwright,
+    Browser,
+    BrowserContext,
+    Page,
+    Error as PlaywrightError,
+)
 from tenacity import (
-    RetryError,
     before_sleep_log,
     retry,
     retry_if_exception_type,
@@ -21,7 +37,7 @@ from tenacity import (
 )
 
 from config import (
-    BACKOFF_MAX, BACKOFF_MIN, BASE_HEADERS, MAX_RETRIES, USER_AGENTS
+    BACKOFF_MAX, BACKOFF_MIN, MAX_RETRIES, USER_AGENTS
 )
 from utils import is_soft_banned
 
@@ -50,105 +66,164 @@ class SoftBanError(Exception):
     """
 
 #=======================================================================
-# SESSION FACTORY
+# SESSION (BROWSER WRAPPER)
 #=======================================================================
 
-def build_session() -> aiohttp.ClientSession:
+class BrowserSession:
     """
-    Create a shared aiohttp ClientSession with browser-like defaults.
+    Wraps a Playwright browser + context as an async context manager.
 
     Usage (always use as async context manager for cleanup):
         async with build_session() as session:
             html = await fetch(session, url)
 
-    The session persists cookies across requests within a run, which
-    makes the traffic pattern look more like a real browsing session.
+    Internally launches headless Chromium, creates a browser context
+    with a realistic user-agent, and exposes a single reusable page.
     """
-    connector = aiohttp.TCPConnector(
-        ssl=True,
-        limit=10,          # max total open connections across all hosts
-        limit_per_host=5,  # max concurrent connections to eBay
-    )
-    return aiohttp.ClientSession(
-        connector=connector,
-        headers=_fresh_headers(),
-        timeout=aiohttp.ClientTimeout(total=30),
-    )
+
+    def __init__(self) -> None:
+        self._pw = None
+        self._browser: Browser | None = None
+        self._context: BrowserContext | None = None
+        self.page: Page | None = None
+
+    async def __aenter__(self) -> "BrowserSession":
+        self._pw = await async_playwright().start()
+        self._browser = await self._pw.chromium.launch(
+            headless=True,
+        )
+        self._context = await self._browser.new_context(
+            user_agent=random.choice(USER_AGENTS),
+        )
+        self.page = await self._context.new_page()
+        return self
+
+    async def __aexit__(self, _exc_type, _exc_val, _exc_tb) -> None:
+        if self._browser:
+            await self._browser.close()
+        if self._pw:
+            await self._pw.stop()
 
 
-def _fresh_headers() -> dict:
-    """Return BASE_HEADERS with a randomly selected User-Agent."""
-    headers = BASE_HEADERS.copy()
-    headers["User-Agent"] = random.choice(USER_AGENTS)
-    return headers
+def build_session() -> BrowserSession:
+    """
+    Create a BrowserSession (headless Chromium).
+
+    Usage (always use as async context manager for cleanup):
+        async with build_session() as session:
+            html = await fetch(session, url)
+
+    The browser context persists cookies across navigations,
+    just like a real browsing session.
+    """
+    return BrowserSession()
+
+#=======================================================================
+# WARM-UP
+#=======================================================================
+
+async def warm_up(session: BrowserSession) -> None:
+    """
+    Navigate to eBay's homepage before real scraping begins.
+
+    Why this matters:
+      A real browser never jumps straight to a deep search URL.
+      It first visits the homepage, picks up cookies (session ID,
+      tracking tokens), and only then navigates to search results.
+      Skipping this step is one of the clearest bot signals.
+
+    Playwright handles the full page lifecycle — JavaScript
+    execution, cookie storage, redirects — automatically.
+    """
+    logger.info("Warm-up: visiting eBay homepage")
+    try:
+        await session.page.goto(
+            "https://www.ebay.com/",
+            wait_until="domcontentloaded",
+        )
+        cookies = await session._context.cookies()
+        logger.info(
+            "Warm-up complete — %d cookies stored",
+            len(cookies),
+        )
+    except PlaywrightError as exc:
+        logger.warning("Warm-up request failed: %s", exc)
+
+    # Pause briefly — no real user clicks a link instantly
+    await asyncio.sleep(random.uniform(2.0, 4.0))
 
 #=======================================================================
 # FETCH
 #=======================================================================
 
 @retry(
-    # Retry on rate-limit responses AND transient network failures.
-    # SoftBanError is intentionally excluded — no point retrying CAPTCHA.
+    # Retry on rate-limit responses AND transient browser errors.
+    # SoftBanError is intentionally excluded — no point retrying
+    # CAPTCHA.
     retry=(
         retry_if_exception_type(RateLimitError)
-        | retry_if_exception_type(aiohttp.ClientError)
+        | retry_if_exception_type(PlaywrightError)
     ),
     stop=stop_after_attempt(MAX_RETRIES),
-    wait=wait_exponential(multiplier=1, min=BACKOFF_MIN, max=BACKOFF_MAX),
+    wait=wait_exponential(
+        multiplier=1, min=BACKOFF_MIN, max=BACKOFF_MAX
+    ),
     # Log a warning each time tenacity waits before a retry.
     before_sleep=before_sleep_log(logger, logging.WARNING),
     reraise=True,  # re-raise final exception if all retries exhausted
 )
-async def fetch(session: aiohttp.ClientSession, url: str) -> str:
+async def fetch(session: BrowserSession, url: str) -> str:
     """
-    Fetch a URL and return the response body as a string.
+    Navigate to a URL and return the page content as a string.
 
-    Anti-ban measures applied on every call:
-      - Rotates User-Agent header before each request
-      - Raises RateLimitError on 429/503 → tenacity backs off
-      - Raises SoftBanError on CAPTCHA → caller skips, no retry
-      - Raises aiohttp.ClientError on network issues → tenacity retries
+    Playwright handles eBay's JS proof-of-work challenge
+    transparently — the page loads, JavaScript executes the
+    Argon2 computation, the form auto-submits, and we get
+    the real content after networkidle.
 
     Args:
-        session: A shared aiohttp.ClientSession (from build_session()).
-        url:     The URL to fetch.
+        session: A BrowserSession (from build_session()).
+        url:     The URL to navigate to.
 
     Returns:
-        Response body as a Unicode string.
+        Page HTML as a Unicode string.
 
     Raises:
-        RateLimitError:      HTTP 429 or 503 (after retries exhausted).
-        SoftBanError:        CAPTCHA / challenge page detected.
-        aiohttp.ClientError: Persistent network failure.
+        RateLimitError:  HTTP 429 or 503 (after retries exhausted).
+        SoftBanError:    CAPTCHA / challenge page detected.
+        PlaywrightError: Persistent browser/network failure.
     """
-    # Rotate UA on every individual request, not just per session
-    session.headers.update({"User-Agent": random.choice(USER_AGENTS)})
-
     logger.debug("GET %s", url)
 
-    async with session.get(url) as response:
-        status = response.status
+    response = await session.page.goto(url, wait_until="domcontentloaded")
 
-        if status in (429, 503):
-            logger.warning(
-                "Rate limit hit (HTTP %d) → tenacity will back off",
-                status
-            )
-            raise RateLimitError(f"HTTP {status} from eBay")
+    # Wait for any JS challenges to resolve and network to settle
+    await session.page.wait_for_load_state(
+        "networkidle", timeout=30000
+    )
 
-        if status != 200:
-            logger.warning(
-                "Unexpected HTTP %d for %s — returning empty string",
-                status,
-                url
-            )
-            return ""
+    status = response.status if response else 0
 
-        html = await response.text()
+    if status in (429, 503):
+        logger.warning(
+            "Rate limit hit (HTTP %d) → tenacity will back off",
+            status
+        )
+        raise RateLimitError(f"HTTP {status} from eBay")
 
-        if is_soft_banned(html):
-            raise SoftBanError(
-                f"Soft-ban / CAPTCHA page detected at {url}"
-            )
+    if status != 200 and status != 0:
+        logger.warning(
+            "Unexpected HTTP %d for %s — returning empty string",
+            status,
+            url
+        )
+        return ""
 
-        return html
+    html = await session.page.content()
+
+    if is_soft_banned(html):
+        raise SoftBanError(
+            f"Soft-ban / CAPTCHA page detected at {url}"
+        )
+
+    return html

@@ -22,7 +22,7 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 from typing import Optional
-from urllib.parse import urlencode, urlparse, parse_qs
+from urllib.parse import quote, urlencode, urlparse, parse_qs
 
 from bs4 import BeautifulSoup
 
@@ -50,6 +50,25 @@ class BrandResult:
 # URL BUILDERS
 #=======================================================================
 
+def _encode_brand(brand: str) -> str:
+    """
+    Double-encode a brand name for eBay's URL format.
+
+    eBay's brand filter uses double URL-encoding:
+      "L.L. Bean" → "L%2EL%2E%20Bean" → "L%252EL%252E%2520Bean"
+
+    Standard urlencode produces "L.L.+Bean" which eBay silently
+    ignores. We must match the encoding the LHN sidebar links
+    use, including encoding dots (which RFC 3986 normally skips).
+    """
+    # First encode: spaces→%20, etc. (quote skips dots by default)
+    single = quote(brand, safe="")
+    # Manually encode dots — eBay requires %2E, not literal "."
+    single = single.replace(".", "%2E")
+    # Second encode: encode the % signs → %25
+    return quote(single, safe="")
+
+
 def _build_sold_url(
     brand: str, base_url: str = BASE_CATEGORY_URL
 ) -> str:
@@ -58,8 +77,9 @@ def _build_sold_url(
 
     Adds to the base category URL:
       - LH_Sold=1      → filter to sold items only
-      - LH_Complete=1  → show completed listings (required with Sold)
-      - Brand=<name>   → filter by brand
+      - LH_Complete=1   → completed listings (required with Sold)
+      - Brand=<name>    → double-encoded brand filter
+      - _dcat=57990     → category context (required for Brand)
 
     Removes _sop (sort order) — irrelevant for sold listings.
     """
@@ -68,11 +88,12 @@ def _build_sold_url(
     )
     params["LH_Sold"] = ["1"]
     params["LH_Complete"] = ["1"]
-    params["Brand"] = [brand]
+    params["_dcat"] = ["57990"]
     params.pop("_sop", None)  # "sort: newly listed" not needed
 
     base = base_url.split("?")[0]
-    return f"{base}?{urlencode({k: v[0] for k, v in params.items()})}"
+    qs = urlencode({k: v[0] for k, v in params.items()})
+    return f"{base}?{qs}&Brand={_encode_brand(brand)}"
 
 
 def _build_active_url(
@@ -82,15 +103,16 @@ def _build_active_url(
     Build the active-listings URL for a brand.
 
     Keeps all base filters intact (Pre-owned, BIN, $30+)
-    and adds the Brand filter.
+    and adds the double-encoded Brand filter + _dcat.
     """
     params = parse_qs(
         urlparse(base_url).query, keep_blank_values=True
     )
-    params["Brand"] = [brand]
+    params["_dcat"] = ["57990"]
 
     base = base_url.split("?")[0]
-    return f"{base}?{urlencode({k: v[0] for k, v in params.items()})}"
+    qs = urlencode({k: v[0] for k, v in params.items()})
+    return f"{base}?{qs}&Brand={_encode_brand(brand)}"
 
 #=======================================================================
 # HTML PARSERS
@@ -149,7 +171,11 @@ def _parse_avg_sold_price(html: str) -> float:
     soup = BeautifulSoup(html, "lxml")
     prices: list[float] = []
 
-    for elem in soup.find_all(class_="s-item__price"):
+    # eBay uses "s-item__price" (older) or "s-card__price" (newer)
+    price_elems = soup.find_all(class_="s-item__price")
+    if not price_elems:
+        price_elems = soup.find_all(class_="s-card__price")
+    for elem in price_elems:
         raw = elem.get_text(strip=True)
         # Skip price ranges — can't determine a single value
         if "to" in raw.lower():
@@ -230,11 +256,11 @@ async def _fetch_brand(
             return result
 
         try:
-            # Fire both requests concurrently for this brand
-            sold_html, active_html = await asyncio.gather(
-                fetch(session, sold_url),
-                fetch(session, active_url),
-            )
+            # Fetch sold page first, then active page.
+            # Playwright uses a single browser tab, so requests
+            # must be sequential (each navigates the same page).
+            sold_html = await fetch(session, sold_url)
+            active_html = await fetch(session, active_url)
         except SoftBanError as exc:
             logger.error(
                 "Soft-ban on brand '%s': %s — skipping", brand, exc
@@ -282,7 +308,7 @@ async def calculate_bolos(
     Run Stage 2: fetch sold + active data for all brands concurrently.
 
     Args:
-        session:   Shared aiohttp.ClientSession.
+        session:   BrowserSession from http_client.build_session().
         brands:    Brand list from Stage 1.
         category:  Category label (e.g. 'casual-button-down-shirts').
         base_url:  Base eBay search URL (defaults to BASE_CATEGORY_URL).
