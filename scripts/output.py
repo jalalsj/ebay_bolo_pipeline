@@ -32,6 +32,7 @@ FIELDNAMES = [
     "sold_90_days_count",
     "sell_through_rate",
     "avg_sold_price",
+    "price_bucket",
     "cogs",
     "ebay_fees",
     "shipping_cost",
@@ -49,6 +50,7 @@ def build_output_row(
     fees: float,
     net_profit: float,
     is_bolo_flag: bool,
+    bucket: str,
 ) -> dict[str, Any]:
     """
     Map a BrandResult + calculated values into a flat output row.
@@ -64,6 +66,7 @@ def build_output_row(
         "sold_90_days_count": brand_result.sold_90_days_count,
         "sell_through_rate": round(str_pct, 2),
         "avg_sold_price": round(brand_result.avg_sold_price, 2),
+        "price_bucket": bucket,
         "cogs": round(DEFAULT_COGS, 2),
         "ebay_fees": round(fees, 2),
         "shipping_cost": round(SHIPPING_COST, 2),

@@ -20,7 +20,9 @@ from pathlib import Path
 # Ensure scripts/ is on the path when running from project root
 sys.path.insert(0, str(Path(__file__).parent))
 
-from calculator import ebay_fees, is_bolo, net_profit, sell_through_rate
+from calculator import (
+    ebay_fees, is_bolo, net_profit, price_bucket, sell_through_rate
+)
 from config import (
     BASE_CATEGORY_URL, DEFAULT_COGS, DEFAULT_SHIPPING_CHARGED
 )
@@ -87,6 +89,15 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help=(
+            "Cap the number of brands processed after Stage 1 "
+            "(e.g. --limit 20 for a quick test run)."
+        ),
+    )
+    parser.add_argument(
         "--verbose",
         action="store_true",
         help="Enable DEBUG logging (raw URLs, parse steps, jitter).",
@@ -142,6 +153,12 @@ async def run_pipeline(args: argparse.Namespace) -> None:
             )
             return
 
+        if args.limit is not None:
+            brands = brands[: args.limit]
+            logger.info(
+                "Brand list capped at %d (--limit)", args.limit
+            )
+
         # Stage 2: BOLO Calculator
         brand_results = await calculate_bolos(
             session,
@@ -172,6 +189,7 @@ async def run_pipeline(args: argparse.Namespace) -> None:
         fees = ebay_fees(total_transaction)
         profit = net_profit(result.avg_sold_price)
         bolo_flag = is_bolo(str_pct, profit)
+        bucket = price_bucket(result.avg_sold_price)
 
         row = build_output_row(
             brand_result=result,
@@ -179,6 +197,7 @@ async def run_pipeline(args: argparse.Namespace) -> None:
             fees=fees,
             net_profit=profit,
             is_bolo_flag=bolo_flag,
+            bucket=bucket,
         )
         output_rows.append(row)
 

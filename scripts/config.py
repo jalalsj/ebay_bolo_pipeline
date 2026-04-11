@@ -66,6 +66,23 @@ MIN_STR_PCT = 100.0   # minimum STR to qualify as BOLO (%)
 MIN_NET_PROFIT = 20.00 # minimum net profit to qualify ($)
 
 #=======================================================================
+# PRICE BUCKETS
+#=======================================================================
+
+# Fashion retail tier names with their upper price bounds.
+# Lower bound of each tier is implied by the tier below it.
+# Outerwear uses different thresholds — deferred to v2.
+BUCKET_BREAD_AND_BUTTER = ("Bread & Butter", 150.00)  # $30–150
+BUCKET_HIGH_END         = ("High-End",        500.00)  # $151–500
+BUCKET_LUXURY           = ("Luxury",     float("inf"))  # $501+
+
+PRICE_BUCKETS = [
+    BUCKET_BREAD_AND_BUTTER,
+    BUCKET_HIGH_END,
+    BUCKET_LUXURY,
+]
+
+#=======================================================================
 # OUTPUT
 #=======================================================================
 

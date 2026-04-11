@@ -11,8 +11,10 @@ without running a single HTTP request.
 
 from config import (
     EBAY_FEE_RATE, MIN_NET_PROFIT, MIN_STR_PCT, DEFAULT_COGS,
-    DEFAULT_SHIPPING_CHARGED, SHIPPING_COST, EBAY_PER_ORDER_FEE
+    DEFAULT_SHIPPING_CHARGED, SHIPPING_COST, EBAY_PER_ORDER_FEE,
+    BUCKET_LUXURY, PRICE_BUCKETS,
 )
+
 
 #=======================================================================
 # SELL-THROUGH RATE CALCULATION
@@ -141,3 +143,28 @@ def is_bolo(str_pct: float, profit: float) -> bool:
         True if the item is a BOLO, False otherwise
     """
     return str_pct >= MIN_STR_PCT and profit >= MIN_NET_PROFIT
+
+#=======================================================================
+# PRICE BUCKET CLASSIFICATION
+#=======================================================================
+
+def price_bucket(avg_sold_price: float) -> str:
+    """
+    Classify an average sold price into a fashion retail tier.
+
+    Tiers (non-outerwear):
+        - Bread & Butter: $30–150
+        - High-End:       $151–500
+        - Luxury:         $501+
+
+    Args:
+        avg_sold_price: Average clearing price from sold
+            listings ($)
+
+    Returns:
+        Tier name: 'Bread & Butter', 'High-End', or 'Luxury'
+    """
+    for name, upper in PRICE_BUCKETS:
+        if avg_sold_price <= upper:
+            return name
+    return BUCKET_LUXURY[0]
