@@ -29,3 +29,19 @@ data/processed/*.csv
 
 # pytest cache
 .pytest_cache/
+
+# Brand cache - regenerated automatically
+data/brands/
+
+# Per-run CSVs I fill in manually, not source code
+data/validation/
+
+# Runtime logs
+logs/
+scripts/logs/
+
+# Claude Code workspace files
+.agents/
+
+# Claude Code memory files
+memory/
