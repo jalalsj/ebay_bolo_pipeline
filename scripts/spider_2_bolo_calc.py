@@ -20,6 +20,7 @@ Flow:
 
 import asyncio
 import logging
+import re
 from dataclasses import dataclass, field
 from typing import Optional
 from urllib.parse import quote, urlencode, urlparse, parse_qs
@@ -44,11 +45,29 @@ class BrandResult:
     sold_90_days_count: int = 0
     active_listings_count: int = 0
     avg_sold_price: float = 0.0
+    avg_active_price: float = 0.0
     scrape_error: Optional[str] = None  # set if fetching/parsing failed
 
 #=======================================================================
 # URL BUILDERS
 #=======================================================================
+
+def _extract_sacat(base_url: str, default: str = "57990") -> str:
+    """
+    Derive the eBay category ID from the base URL.
+
+    Checks the _sacat query parameter first, then falls back to the
+    numeric path segment /sch/{sacat}/i.html. Returns the default
+    (men's clothing) if neither is found.
+    """
+    qs = parse_qs(urlparse(base_url).query)
+    if "_sacat" in qs:
+        return qs["_sacat"][0]
+    match = re.search(r"/sch/(\d+)/", base_url)
+    if match:
+        return match.group(1)
+    return default
+
 
 def _encode_brand(brand: str) -> str:
     """
@@ -75,11 +94,18 @@ def _build_sold_url(
     """
     Build the sold-listings URL for a brand.
 
-    Adds to the base category URL:
-      - LH_Sold=1      → filter to sold items only
+    Uses keyword search (_nkw=<brand> -lot) instead of the Brand
+    facet filter. The facet only matches listings where sellers
+    explicitly set item specifics — most thrift/resale listings
+    don't have this filled in, causing severe undercounting.
+    Keyword search finds any listing with the brand in the title.
+
+    Adds:
+      - LH_Sold=1       → filter to sold items only
       - LH_Complete=1   → completed listings (required with Sold)
-      - Brand=<name>    → double-encoded brand filter
-      - _dcat=57990     → category context (required for Brand)
+      - _dcat=57990     → category context
+      - LH_PrefLoc=2    → US sellers only (matches manual research)
+      - _nkw=<brand> -lot → keyword search, exclude lot listings
 
     Removes _sop (sort order) — irrelevant for sold listings.
     """
@@ -88,12 +114,15 @@ def _build_sold_url(
     )
     params["LH_Sold"] = ["1"]
     params["LH_Complete"] = ["1"]
-    params["_dcat"] = ["57990"]
-    params.pop("_sop", None)  # "sort: newly listed" not needed
+    params["_dcat"] = [_extract_sacat(base_url)]
+    params["LH_PrefLoc"] = ["2"]
+    params["_nkw"] = [f"{brand} -lot"]
+    params["_sop"] = ["10"]       # sort: ended recently
+    params.pop("_udlo", None)     # remove price floor — count ALL sold items
 
     base = base_url.split("?")[0]
     qs = urlencode({k: v[0] for k, v in params.items()})
-    return f"{base}?{qs}&Brand={_encode_brand(brand)}"
+    return f"{base}?{qs}"
 
 
 def _build_active_url(
@@ -102,17 +131,26 @@ def _build_active_url(
     """
     Build the active-listings URL for a brand.
 
-    Keeps all base filters intact (Pre-owned, BIN, $30+)
-    and adds the double-encoded Brand filter + _dcat.
+    Uses keyword search (_nkw=<brand> -lot) instead of the Brand
+    facet filter — same reasoning as _build_sold_url.
+
+    Keeps all base filters intact (Pre-owned, BIN, $30+) and adds:
+      - _dcat=57990     → category context
+      - LH_PrefLoc=2    → US sellers only
+      - _nkw=<brand> -lot → keyword search, exclude lot listings
     """
     params = parse_qs(
         urlparse(base_url).query, keep_blank_values=True
     )
-    params["_dcat"] = ["57990"]
+    params["_dcat"] = [_extract_sacat(base_url)]
+    params["LH_PrefLoc"] = ["2"]
+    params["_nkw"] = [f"{brand} -lot"]
+    params["_sop"] = ["10"]       # sort: newly listed
+    params.pop("_udlo", None)     # remove price floor — count ALL active items
 
     base = base_url.split("?")[0]
     qs = urlencode({k: v[0] for k, v in params.items()})
-    return f"{base}?{qs}&Brand={_encode_brand(brand)}"
+    return f"{base}?{qs}"
 
 #=======================================================================
 # HTML PARSERS
@@ -132,7 +170,6 @@ def _parse_listing_count(html: str) -> int:
 
     Returns 0 if no count is found.
     """
-    import re
     soup = BeautifulSoup(html, "lxml")
 
     # Strategy 1: srp-controls__count-heading (most common)
@@ -202,7 +239,6 @@ def _parse_int(text: str) -> int:
     Extract the first integer from a string, ignoring commas.
     Returns 0 on failure.
     """
-    import re
     match = re.search(r"[\d,]+", str(text))
     if match:
         try:
@@ -214,7 +250,6 @@ def _parse_int(text: str) -> int:
 
 def _parse_price(text: str) -> Optional[float]:
     """Parse a price string like '$74.00' or 'US $74.00' into float."""
-    import re
     match = re.search(r"\$?([\d,]+\.?\d*)", text)
     if match:
         try:
@@ -277,13 +312,15 @@ async def _fetch_brand(
         result.sold_90_days_count = _parse_listing_count(sold_html)
         result.active_listings_count = _parse_listing_count(active_html)
         result.avg_sold_price = _parse_avg_sold_price(sold_html)
+        result.avg_active_price = _parse_avg_sold_price(active_html)
 
         logger.info(
-            "  %-30s sold=%-5d active=%-5d avg_price=$%.2f",
+            "  %-30s sold=%-5d active=%-5d avg_sold=$%.2f avg_active=$%.2f",
             brand,
             result.sold_90_days_count,
             result.active_listings_count,
             result.avg_sold_price,
+            result.avg_active_price,
         )
 
     # Jitter outside the semaphore — doesn't block the next brand

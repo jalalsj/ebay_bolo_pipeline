@@ -27,9 +27,12 @@ from config import (
     BASE_CATEGORY_URL, DEFAULT_COGS, DEFAULT_SHIPPING_CHARGED
 )
 from http_client import build_session, warm_up
-from output import build_output_row, write_results
+from output import build_output_row, write_results, write_validation_csv
+from brand_cache import load_brand_list, needs_refresh, save_brand_list
 from spider_1_brand_scout import scout_brands
-from spider_2_bolo_calc import calculate_bolos
+from spider_2_bolo_calc import (
+    calculate_bolos, _build_active_url, _build_sold_url, _extract_sacat
+)
 from utils import setup_logging
 
 logger = logging.getLogger(__name__)
@@ -98,6 +101,25 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--brands",
+        type=str,
+        default=None,
+        help=(
+            "Comma-separated list of brand names to scrape directly, "
+            "bypassing Stage 1 entirely "
+            "(e.g. --brands 'Barbour,Canali,DOCKERS,Express,Faherty')."
+        ),
+    )
+    parser.add_argument(
+        "--validation",
+        action="store_true",
+        help=(
+            "Write a validation CSV to data/validation/ instead of "
+            "(in addition to) the standard output. "
+            "Includes blank manual-research columns and eBay URLs."
+        ),
+    )
+    parser.add_argument(
         "--verbose",
         action="store_true",
         help="Enable DEBUG logging (raw URLs, parse steps, jitter).",
@@ -140,12 +162,34 @@ async def run_pipeline(args: argparse.Namespace) -> None:
         # Warm-up: visit homepage to collect cookies
         await warm_up(session)
 
-        # Stage 1: Brand Scout
-        brands = await scout_brands(
-            session,
-            category_url=args.url,
-            dump_html=args.dump_html,
-        )
+        # Stage 1: Brand Scout (with cache)
+        # Skip entirely when --brands is supplied — use those names directly.
+        if args.brands:
+            brands = [b.strip() for b in args.brands.split(",") if b.strip()]
+            logger.info(
+                "Brand list supplied via --brands (%d): %s",
+                len(brands), brands,
+            )
+        else:
+            # The full brand list changes slowly — re-scraping eBay on every
+            # run is wasteful. Load from cache if it's still fresh; otherwise
+            # run Stage 1 and save the updated list with a changelog.
+            cache_key = _extract_sacat(args.url)
+            brand_cache = load_brand_list(cache_key=cache_key)
+
+            if brand_cache and not needs_refresh(brand_cache):
+                brands = brand_cache["brands"]
+            else:
+                brands = await scout_brands(
+                    session,
+                    category_url=args.url,
+                    dump_html=args.dump_html,
+                )
+                if brands:
+                    old_brands = brand_cache["brands"] if brand_cache else None
+                    save_brand_list(
+                        brands, cache_key=cache_key, old_brands=old_brands
+                    )
 
         if not brands:
             logger.error(
@@ -219,7 +263,19 @@ async def run_pipeline(args: argparse.Namespace) -> None:
         len(bolos),
     )
 
-    write_results(output_rows, dry_run=args.dry_run)
+    write_results(output_rows, dry_run=args.dry_run, category=args.category)
+
+    if args.validation and not args.dry_run:
+        active_urls = {
+            b: _build_active_url(b, args.url) for b in brands
+        }
+        sold_urls = {
+            b: _build_sold_url(b, args.url) for b in brands
+        }
+        write_validation_csv(
+            output_rows, active_urls, sold_urls, category=args.category
+        )
+
     logger.info("Pipeline complete.")
 
 #=======================================================================

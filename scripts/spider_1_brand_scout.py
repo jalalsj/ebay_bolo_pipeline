@@ -26,7 +26,7 @@ import re
 from bs4 import BeautifulSoup
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
-from config import BASE_CATEGORY_URL
+from config import BASE_CATEGORY_URL, BRAND_DENYLIST
 from http_client import BrowserSession, SoftBanError, fetch
 
 logger = logging.getLogger(__name__)
@@ -129,6 +129,9 @@ def parse_brands_from_dialog(html: str) -> list[str]:
         # Keep only entries that start with a letter —
         # artifacts like "!it", "&Jacket" start with symbols
         if not name[0].isalpha():
+            continue
+        # Remove known non-brand terms (style descriptors, generic words)
+        if name.lower() in BRAND_DENYLIST:
             continue
         brands.append(name)
 

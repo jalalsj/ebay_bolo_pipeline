@@ -17,6 +17,8 @@ from typing import Any
 
 from config import OUTPUT_DIR, DEFAULT_COGS, SHIPPING_COST
 
+VALIDATION_DIR = "data/validation"
+
 logger = logging.getLogger(__name__)
 
 #=======================================================================
@@ -31,7 +33,8 @@ FIELDNAMES = [
     "active_listings_count",
     "sold_90_days_count",
     "sell_through_rate",
-    "avg_sold_price",
+    "avg_price_sold_recent",
+    "avg_price_active_recent",
     "price_bucket",
     "cogs",
     "ebay_fees",
@@ -65,7 +68,8 @@ def build_output_row(
         "active_listings_count": brand_result.active_listings_count,
         "sold_90_days_count": brand_result.sold_90_days_count,
         "sell_through_rate": round(str_pct, 2),
-        "avg_sold_price": round(brand_result.avg_sold_price, 2),
+        "avg_price_sold_recent": round(brand_result.avg_sold_price, 2),
+        "avg_price_active_recent": round(brand_result.avg_active_price, 2),
         "price_bucket": bucket,
         "cogs": round(DEFAULT_COGS, 2),
         "ebay_fees": round(fees, 2),
@@ -79,7 +83,7 @@ def build_output_row(
 #=======================================================================
 
 def write_results(
-    rows: list[dict[str, Any]], dry_run: bool = False
+    rows: list[dict[str, Any]], dry_run: bool = False, category: str = ""
 ) -> str:
     """
     Write BOLO results to a dated CSV file.
@@ -92,7 +96,7 @@ def write_results(
         Absolute path to the written CSV, '[dry-run]' if dry_run
         is True, or '' if rows is empty.
     """
-    output_path = _build_output_path()
+    output_path = _build_output_path(category)
 
     if dry_run:
         logger.info(
@@ -123,6 +127,98 @@ def write_results(
 # HELPERS
 #=======================================================================
 
-def _build_output_path() -> str:
+def _build_output_path(category: str = "") -> str:
     today = date.today().strftime("%Y-%m-%d")
-    return os.path.join(OUTPUT_DIR, f"bolo_{today}.csv")
+    suffix = f"_{category}" if category else ""
+    return os.path.join(OUTPUT_DIR, f"bolo_{today}{suffix}.csv")
+
+
+#=======================================================================
+# VALIDATION CSV
+#=======================================================================
+
+# Header matches the hand-built validation sheet format:
+# Each "manual_*" metric has a sibling URL column for quick lookup.
+_VALIDATION_HEADER = [
+    "brand",
+    "scraper_active_listings",
+    "manual_active_listings",
+    "manual_active_listings",   # URL column
+    "scraper_sold_90d",
+    "manual_sold_90d",
+    "manual_sold_90d",          # URL column
+    "scraper_avg_price_sold_recent",
+    "manual_avg_price_sold_recent",
+    "manual_avg_price_sold_recent_url",  # URL column (blank — calculated field)
+    "scraper_str_pct",
+    "manual_str_pct",
+    "scraper_net_profit",
+    "manual_net_profit",
+    "scraper_is_bolo",
+    "manual_is_bolo",
+    "notes",
+]
+
+
+def write_validation_csv(
+    rows: list[dict[str, Any]],
+    active_urls: dict[str, str],
+    sold_urls: dict[str, str],
+    category: str = "",
+) -> str:
+    """
+    Write a validation CSV with scraper values + blank manual columns.
+
+    Produces data/validation/validation_YYYY-MM-DD.csv.  Each row
+    contains the scraped numbers alongside empty cells and eBay search
+    URLs so you can quickly verify figures by hand.
+
+    Args:
+        rows:         Output rows from build_output_row().
+        active_urls:  brand → active-listings search URL.
+        sold_urls:    brand → sold-listings search URL.
+
+    Returns:
+        Absolute path of the written file, or '' if rows is empty.
+    """
+    if not rows:
+        logger.warning("No rows for validation CSV — file not created")
+        return ""
+
+    today = date.today().strftime("%Y-%m-%d")
+    Path(VALIDATION_DIR).mkdir(parents=True, exist_ok=True)
+    suffix = f"_{category}" if category else ""
+    out_path = os.path.join(VALIDATION_DIR, f"validation_{today}{suffix}.csv")
+
+    with open(out_path, "w", newline="", encoding="utf-8") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(_VALIDATION_HEADER)
+        for row in rows:
+            brand = row["brand"]
+            str_pct = (
+                f"{row['sell_through_rate']:.1f}%"
+                if isinstance(row["sell_through_rate"], (int, float))
+                else row["sell_through_rate"]
+            )
+            writer.writerow([
+                brand,
+                row["active_listings_count"],   # scraper_active_listings
+                "",                             # manual_active_listings
+                active_urls.get(brand, ""),     # active URL
+                row["sold_90_days_count"],       # scraper_sold_90d
+                "",                             # manual_sold_90d
+                sold_urls.get(brand, ""),        # sold URL
+                row["avg_price_sold_recent"],    # scraper_avg_price_sold_recent
+                "",                             # manual_avg_price_sold_recent
+                "",                             # avg_sold URL (n/a)
+                str_pct,                        # scraper_str_pct
+                "",                             # manual_str_pct
+                row["estimated_net_profit"],     # scraper_net_profit
+                "",                             # manual_net_profit
+                row["is_bolo"],                 # scraper_is_bolo
+                "",                             # manual_is_bolo
+                "",                             # notes
+            ])
+
+    logger.info("Validation CSV → %s (%d rows)", out_path, len(rows))
+    return out_path
