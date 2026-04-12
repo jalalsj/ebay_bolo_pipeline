@@ -83,10 +83,202 @@ PRICE_BUCKETS = [
 ]
 
 #=======================================================================
+# BRAND DENYLIST
+#=======================================================================
+
+# Generic terms that appear in eBay's brand facet but are not real brands.
+# All entries are lowercase — comparison is case-insensitive.
+# Add to this list as new non-brands are discovered during validation.
+BRAND_DENYLIST = {
+    "abstract",   # style descriptor
+    "academy",    # generic retailer name
+    "active",     # generic descriptor
+}
+
+#=======================================================================
 # OUTPUT
 #=======================================================================
 
 OUTPUT_DIR = "data/processed"
+
+#=======================================================================
+# MENSWEAR SUBCATEGORY CONFIGS
+#=======================================================================
+
+# Each entry defines one eBay menswear subcategory to scrape.
+# sacat values are eBay's internal category identifiers.
+# URL mirrors BASE_CATEGORY_URL structure with the subcategory sacat.
+# Verify each URL in a browser with --dry-run before a full run.
+CATEGORY_CONFIGS = [
+    {
+        "slug": "casual-shirts",
+        "sacat": "57990",
+        "url": BASE_CATEGORY_URL,
+        "description": "Men's Casual Button-Down Shirts",
+    },
+    {
+        "slug": "coats-jackets",
+        "sacat": "57988",
+        "url": (
+            "https://www.ebay.com/sch/57988/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=57988&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Coats & Jackets",
+    },
+    {
+        "slug": "jeans",
+        "sacat": "11483",
+        "url": (
+            "https://www.ebay.com/sch/11483/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=11483&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Jeans",
+    },
+    {
+        "slug": "sweaters",
+        "sacat": "11484",
+        "url": (
+            "https://www.ebay.com/sch/11484/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=11484&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Sweaters",
+    },
+    {
+        "slug": "dress-shirts",
+        "sacat": "57991",
+        "url": (
+            "https://www.ebay.com/sch/57991/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=57991&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Dress Shirts",
+    },
+    {
+        "slug": "t-shirts",
+        "sacat": "185100",
+        "url": (
+            "https://www.ebay.com/sch/185100/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=185100&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's T-Shirts",
+    },
+    {
+        "slug": "pants",
+        "sacat": "57989",
+        "url": (
+            "https://www.ebay.com/sch/57989/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=57989&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Pants",
+    },
+    {
+        "slug": "polos",
+        "sacat": "185101",
+        "url": (
+            "https://www.ebay.com/sch/185101/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=185101&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Polo Shirts",
+    },
+    {
+        "slug": "activewear-tops",
+        "sacat": "185076",
+        "url": (
+            "https://www.ebay.com/sch/185076/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=185076&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Activewear Tops",
+    },
+    {
+        "slug": "hoodies-sweatshirts",
+        "sacat": "155183",
+        "url": (
+            "https://www.ebay.com/sch/155183/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=155183&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Hoodies & Sweatshirts",
+    },
+    {
+        "slug": "activewear-pants",
+        "sacat": "260956",
+        "url": (
+            "https://www.ebay.com/sch/260956/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=260956&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Activewear Pants",
+    },
+    {
+        "slug": "activewear-shorts",
+        "sacat": "260957",
+        "url": (
+            "https://www.ebay.com/sch/260957/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=260957&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Activewear Shorts",
+    },
+    {
+        "slug": "tracksuits",
+        "sacat": "185708",
+        "url": (
+            "https://www.ebay.com/sch/185708/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=185708&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Tracksuits & Sets",
+    },
+    {
+        "slug": "activewear-jackets",
+        "sacat": "185702",
+        "url": (
+            "https://www.ebay.com/sch/185702/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=185702&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Activewear Jackets",
+    },
+    {
+        "slug": "shorts",
+        "sacat": "15689",
+        "url": (
+            "https://www.ebay.com/sch/15689/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=15689&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Shorts",
+    },
+    {
+        "slug": "swimwear",
+        "sacat": "15690",
+        "url": (
+            "https://www.ebay.com/sch/15690/i.html"
+            "?_fsrp=1&_from=R40&_nkw=mens+-lot"
+            "&LH_BIN=1&_sacat=15690&LH_ItemCondition=3000&_udlo=30&_sop=16"
+        ),
+        "description": "Men's Swimwear",
+    },
+]
+
+#=======================================================================
+# BRAND CACHE
+#=======================================================================
+
+# Path to the persistent brand list cache file.
+BRAND_CACHE_PATH = "data/brands/brand_list.json"
+
+# How many days before the cached brand list is considered stale
+# and Stage 1 re-scrapes eBay. 30 days is a safe default —
+# the brand facet doesn't change meaningfully week to week.
+BRAND_CACHE_MAX_AGE_DAYS = 30
 
 #=======================================================================
 # LOGGING
