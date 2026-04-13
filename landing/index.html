@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOLO Report — Free Weekly eBay Menswear Intel for Resellers</title>
+  <meta name="description" content="Every Sunday: which menswear brands are selling fast on eBay, what they clear for, and how much profit is left. Free for resellers." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="BOLO Report — Free Weekly eBay Menswear Intel" />
+  <meta property="og:description" content="Every Sunday: which brands sell fast, what they clear for, and how much profit is left. Free for resellers." />
+  <meta property="og:type" content="website" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0f0f0f;
+      --white:   #ffffff;
+      --gray-1:  #1a1a1a;
+      --gray-2:  #2a2a2a;
+      --gray-3:  #444444;
+      --gray-4:  #888888;
+      --gray-5:  #cccccc;
+      --gray-6:  #f4f4f4;
+      --accent:  #e8ff00;   /* signal yellow — eBay energy */
+      --green:   #22c55e;
+      --red:     #ef4444;
+      --font:    'Inter', system-ui, -apple-system, sans-serif;
+      --max:     720px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+    section { padding: 80px 0; }
+    section + section { border-top: 1px solid var(--gray-2); }
+
+    /* ── NAV ── */
+    nav {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .logo {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .nav-tag {
+      font-size: .75rem;
+      color: var(--gray-4);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    /* ── HERO ── */
+    .hero { padding: 100px 0 80px; }
+    .eyebrow {
+      display: inline-block;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .hero-sub {
+      font-size: 1.125rem;
+      color: var(--gray-5);
+      max-width: 560px;
+      margin-bottom: 40px;
+      line-height: 1.7;
+    }
+
+    /* ── FORM ── */
+    .signup-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .signup-form input[type="email"] {
+      flex: 1;
+      min-width: 220px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      background: var(--gray-1);
+      border: 1px solid var(--gray-3);
+      border-radius: 8px;
+      color: var(--white);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .signup-form input[type="email"]:focus { border-color: var(--accent); }
+    .signup-form input[type="email"]::placeholder { color: var(--gray-4); }
+    .btn {
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      background: var(--accent);
+      color: var(--black);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity .15s;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: .88; }
+    .form-note {
+      font-size: .8rem;
+      color: var(--gray-4);
+    }
+
+    /* Beehiiv embed swap — once you have the embed code from Beehiiv,
+       delete the .signup-form block above and paste the embed here.    */
+    .beehiiv-embed { /* placeholder — replaced with Beehiiv iframe */ }
+
+    /* ── STATS BAR ── */
+    .stats {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      padding: 40px 0;
+    }
+    .stat-item { }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -.03em;
+    }
+    .stat-label {
+      font-size: .8rem;
+      color: var(--gray-4);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-top: 2px;
+    }
+
+    /* ── SAMPLE TABLE ── */
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 10px;
+    }
+    .section-sub {
+      color: var(--gray-4);
+      margin-bottom: 32px;
+      font-size: .95rem;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--gray-2);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+    }
+    thead { background: var(--gray-1); }
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--gray-4);
+      white-space: nowrap;
+    }
+    td {
+      padding: 13px 16px;
+      border-top: 1px solid var(--gray-2);
+      color: var(--gray-5);
+      white-space: nowrap;
+    }
+    tr:hover td { background: var(--gray-1); }
+    .bolo-yes {
+      display: inline-block;
+      padding: 3px 9px;
+      background: rgba(34,197,94,.15);
+      color: var(--green);
+      border-radius: 4px;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+    }
+    .bolo-no {
+      display: inline-block;
+      padding: 3px 9px;
+      background: rgba(136,136,136,.1);
+      color: var(--gray-4);
+      border-radius: 4px;
+      font-size: .75rem;
+      font-weight: 700;
+    }
+    .str-high { color: var(--green); font-weight: 600; }
+    .str-low  { color: var(--gray-4); }
+    .brand-name { color: var(--white); font-weight: 600; }
+
+    /* ── HOW IT WORKS ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+    .step {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .step-num {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .step h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step p {
+      font-size: .875rem;
+      color: var(--gray-4);
+      line-height: 1.6;
+    }
+
+    /* ── WHAT YOU GET ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+    }
+    .feature {
+      border: 1px solid var(--gray-2);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .feature-icon { font-size: 1.4rem; margin-bottom: 10px; }
+    .feature h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+    .feature p  { font-size: .825rem; color: var(--gray-4); line-height: 1.6; }
+
+    /* ── CTA BOTTOM ── */
+    .cta-bottom { text-align: center; }
+    .cta-bottom h2 { font-size: 1.75rem; margin-bottom: 12px; }
+    .cta-bottom p  { color: var(--gray-4); margin-bottom: 32px; }
+    .cta-bottom .signup-form { justify-content: center; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 32px 24px;
+      text-align: center;
+      font-size: .8rem;
+      color: var(--gray-3);
+      border-top: 1px solid var(--gray-2);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 520px) {
+      section { padding: 60px 0; }
+      .hero   { padding: 72px 0 60px; }
+      .stats  { gap: 24px; }
+      .signup-form { flex-direction: column; }
+      .signup-form input[type="email"],
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <span class="logo">BOLO Report</span>
+    <span class="nav-tag">Free for resellers</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Free weekly newsletter</span>
+      <h1>Know which brands to<br>source <em>before everyone else.</em></h1>
+      <p class="hero-sub">
+        Every Sunday we scan thousands of eBay menswear listings and tell you
+        exactly which brands are selling fast, what they clear for, and how
+        much profit is left after fees. You source smarter. We do the math.
+      </p>
+
+      <!-- SIGNUP FORM — replace with Beehiiv embed once account is set up -->
+      <div class="beehiiv-embed">
+        <form class="signup-form" onsubmit="return false;">
+          <input type="email" placeholder="your@email.com" autocomplete="email" />
+          <button class="btn" type="submit">Get the Free Report &rarr;</button>
+        </form>
+        <p class="form-note">Free forever &middot; One email per week &middot; Unsubscribe anytime</p>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-num">15</div>
+          <div class="stat-label">Categories tracked</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">100+</div>
+          <div class="stat-label">Brands analyzed weekly</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">Every Sunday</div>
+          <div class="stat-label">Fresh in your inbox</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAMPLE DATA -->
+  <section>
+    <div class="wrap">
+      <h2>This week's BOLO signals</h2>
+      <p class="section-sub">Sample from last Sunday's report &mdash; casual shirts category</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Sell-Through</th>
+              <th>Avg Sale</th>
+              <th>Net Profit</th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="brand-name">Faherty</td>
+              <td class="str-high">325%</td>
+              <td>$74.00</td>
+              <td>$57.06</td>
+              <td><span class="bolo-yes">BOLO</span></td>
+            </tr>
+            <tr>
+              <td class="brand-name">Billy Reid</td>
+              <td class="str-high">314%</td>
+              <td>$68.50</td>
+              <td>$52.20</td>
+              <td><span class="bolo-yes">BOLO</span></td>
+            </tr>
+            <tr>
+              <td class="brand-name">Peter Millar</td>
+              <td class="str-high">231%</td>
+              <td>$61.00</td>
+              <td>$45.57</td>
+              <td><span class="bolo-yes">BOLO</span></td>
+            </tr>
+            <tr>
+              <td class="brand-name">Untuckit</td>
+              <td class="str-low">37%</td>
+              <td>$45.00</td>
+              <td>$31.43</td>
+              <td><span class="bolo-no">SKIP</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section>
+    <div class="wrap">
+      <h2>How it works</h2>
+      <p class="section-sub">Three steps. Zero guesswork.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">Step 01</div>
+          <h3>We scrape</h3>
+          <p>Every week our pipeline scans active and sold eBay listings across 15 menswear categories.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Step 02</div>
+          <h3>We calculate</h3>
+          <p>Sell-through rate, average clearing price, eBay fees, and net profit — after every deduction.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Step 03</div>
+          <h3>You source</h3>
+          <p>You get the BOLO list every Sunday morning. Know what to pick up before the week starts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section>
+    <div class="wrap">
+      <h2>What's in every report</h2>
+      <p class="section-sub">Actionable numbers, not fluff.</p>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">📊</div>
+          <h3>Sell-Through Rate</h3>
+          <p>Sold ÷ Active. Anything above 100% means demand outpaces supply.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">💵</div>
+          <h3>Net Profit Estimate</h3>
+          <p>After COGS, eBay fees, and shipping. You see the real number, not the sale price.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">👕</div>
+          <h3>15 Categories</h3>
+          <p>Shirts, jeans, coats, activewear, polos, sweaters, hoodies, pants, shorts and more.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🎯</div>
+          <h3>BOLO Flag</h3>
+          <p>Every brand that meets the threshold is flagged. One scan, clear decision.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BOTTOM -->
+  <section class="cta-bottom">
+    <div class="wrap">
+      <h2>Start sourcing with an edge.</h2>
+      <p>Join resellers getting the free weekly BOLO report every Sunday.</p>
+
+      <!-- SIGNUP FORM — replace with Beehiiv embed once account is set up -->
+      <div class="beehiiv-embed">
+        <form class="signup-form" onsubmit="return false;">
+          <input type="email" placeholder="your@email.com" autocomplete="email" />
+          <button class="btn" type="submit">Get the Free Report &rarr;</button>
+        </form>
+        <p class="form-note">Free forever &middot; One email per week &middot; Unsubscribe anytime</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; 2026 BOLO Report &mdash; Built for resellers, by a reseller.
+  </footer>
+
+</body>
+</html>
