@@ -222,10 +222,14 @@ Enter your average cost of goods (COGS) per item [default: $7.00]: _
 
 ---
 
-## V2 Roadmap
+## Roadmap
 
-- [ ] Automated newsletter composition and delivery (Resend API)
-- [ ] BI dashboard for trend visualization (Tableau / Plotly)
-- [ ] Scheduled pipeline execution (cron / Airflow)
-- [ ] PostgreSQL persistence layer with historical trend tracking
-- [ ] Brand discovery agent for auto-updating the brand watchlist
+| Milestone | Track | Target | Status |
+|---|---|---|---|
+| M1 — Stable V1, 15 categories | Pipeline | Apr 18 | 🔄 In progress |
+| Landing page live | Marketing | Apr 25 | ⬜ Planned |
+| M2 — Scheduled runs (VPS + cron) | Pipeline | Apr 25 | ⬜ Planned |
+| M3 — Email delivery (Resend API) | Pipeline | May 2 | ⬜ Planned |
+| M4 — Dashboard (Plotly HTML report) | Pipeline | May 9 | ⬜ Planned |
+| MVP open beta | Both | May 9 | ⬜ Planned |
+| V3 — SQLite per-listing + online tool | Pipeline | TBD | ⬜ Backlog |
