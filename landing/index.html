@@ -3,31 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BOLO Report — Free Weekly eBay Menswear Intel for Resellers</title>
-  <meta name="description" content="Every Sunday: which menswear brands are selling fast on eBay, what they clear for, and how much profit is left. Free for resellers." />
+  <title>BOLO Tracker — Free Weekly eBay BOLO List for Men's Clothing Resellers</title>
+  <meta name="description" content="The free weekly BOLO list built on real eBay sell-through data — not YouTube opinion. Top 10 men's BOLOs across 15 categories, every Sunday." />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="BOLO Report — Free Weekly eBay Menswear Intel" />
-  <meta property="og:description" content="Every Sunday: which brands sell fast, what they clear for, and how much profit is left. Free for resellers." />
+  <meta property="og:title" content="BOLO Tracker — Free eBay BOLO List for Men's Clothing Resellers" />
+  <meta property="og:description" content="Real eBay sell-through data. Top 10 men's BOLOs across 15 categories. Every Sunday, before the week starts." />
   <meta property="og:type" content="website" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black:   #0f0f0f;
-      --white:   #ffffff;
-      --gray-1:  #1a1a1a;
-      --gray-2:  #2a2a2a;
-      --gray-3:  #444444;
-      --gray-4:  #888888;
-      --gray-5:  #cccccc;
-      --gray-6:  #f4f4f4;
-      --accent:  #e8ff00;   /* signal yellow — eBay energy */
-      --green:   #22c55e;
-      --red:     #ef4444;
-      --font:    'Inter', system-ui, -apple-system, sans-serif;
-      --max:     720px;
+      --black:  #0f0f0f;
+      --white:  #ffffff;
+      --gray-1: #1a1a1a;
+      --gray-2: #2a2a2a;
+      --gray-3: #444444;
+      --gray-4: #888888;
+      --gray-5: #cccccc;
+      --accent: #e8ff00;
+      --green:  #22c55e;
+      --red:    #ef4444;
+      --font:   'Inter', system-ui, -apple-system, sans-serif;
+      --max:    720px;
     }
 
     html { font-size: 16px; scroll-behavior: smooth; }
@@ -48,6 +47,11 @@
 
     /* ── NAV ── */
     nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
       padding: 20px 24px;
       display: flex;
       align-items: center;
@@ -70,7 +74,30 @@
     }
 
     /* ── HERO ── */
-    .hero { padding: 100px 0 80px; }
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 160px;
+      background: linear-gradient(to bottom, transparent, var(--black));
+      z-index: 2;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      padding: 120px 0 100px;
+    }
     .eyebrow {
       display: inline-block;
       font-size: .75rem;
@@ -81,11 +108,11 @@
       margin-bottom: 20px;
     }
     h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(2rem, 5vw, 3.25rem);
       font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -.02em;
-      margin-bottom: 20px;
+      line-height: 1.08;
+      letter-spacing: -.03em;
+      margin-bottom: 24px;
     }
     h1 em {
       font-style: normal;
@@ -94,7 +121,7 @@
     .hero-sub {
       font-size: 1.125rem;
       color: var(--gray-5);
-      max-width: 560px;
+      max-width: 520px;
       margin-bottom: 40px;
       line-height: 1.7;
     }
@@ -118,8 +145,12 @@
       outline: none;
       transition: border-color .2s;
     }
-    .signup-form input[type="email"]:focus { border-color: var(--accent); }
-    .signup-form input[type="email"]::placeholder { color: var(--gray-4); }
+    .signup-form input[type="email"]:focus {
+      border-color: var(--accent);
+    }
+    .signup-form input[type="email"]::placeholder {
+      color: var(--gray-4);
+    }
     .btn {
       padding: 14px 28px;
       font-size: 1rem;
@@ -138,30 +169,191 @@
       color: var(--gray-4);
     }
 
-    /* Beehiiv embed swap — once you have the embed code from Beehiiv,
-       delete the .signup-form block above and paste the embed here.    */
-    .beehiiv-embed { /* placeholder — replaced with Beehiiv iframe */ }
+    /* Beehiiv embed swap — delete .signup-form block above and
+       paste the Beehiiv iframe here once account is set up.    */
 
-    /* ── STATS BAR ── */
-    .stats {
+    /*===================================================================
+       PIPELINE ANIMATION — full-bleed hero background
+    ===================================================================*/
+
+    .pipeline-viz {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: grid;
+      grid-template-columns: 1fr 64px 1fr;
+      opacity: .18;
+      background: transparent;
+      font-family: 'SF Mono', 'Fira Mono', monospace;
+      pointer-events: none;
+    }
+    .pv-panel {
+      padding: 80px 32px 24px;
       display: flex;
-      gap: 40px;
-      flex-wrap: wrap;
-      padding: 40px 0;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
     }
-    .stat-item { }
-    .stat-num {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: -.03em;
-    }
-    .stat-label {
-      font-size: .8rem;
-      color: var(--gray-4);
+    .pv-panel-label {
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .14em;
       text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-top: 2px;
+      color: var(--gray-4);
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--gray-2);
+    }
+    .pv-raw { border-right: 1px solid var(--gray-2); }
+    .pv-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      opacity: 0;
+      animation: pvRowFadeIn .3s ease forwards;
+    }
+    .pv-row-title {
+      font-size: .75rem;
+      color: var(--gray-5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pv-row-meta {
+      font-size: .65rem;
+      color: var(--gray-4);
+    }
+    .pv-row-meta span { margin-right: 10px; }
+    .pv-row.pv-row--scanning .pv-row-title,
+    .pv-row.pv-row--scanning .pv-row-meta {
+      color: var(--accent);
+      opacity: .7;
+    }
+    .pv-processor {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--gray-2);
+      border-left: 1px solid var(--gray-2);
+      overflow: visible;
+      z-index: 2;
+    }
+    .pv-scan-track {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .pv-scan-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        var(--accent) 30%,
+        var(--accent) 70%,
+        transparent 100%
+      );
+      box-shadow: 0 0 10px 3px rgba(232,255,0,.5);
+      left: -2px;
+      animation: pvScanMove 2s cubic-bezier(.4,0,.6,1) infinite;
+    }
+    .pv-proc-label {
+      font-size: .5rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gray-4);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      pointer-events: none;
+    }
+    .pv-particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0;
+      animation: pvParticleFlow var(--dur,1.2s) ease-in
+        var(--delay,0s) infinite;
+    }
+    .pv-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: var(--gray-2);
+      border-radius: 6px;
+      border: 1px solid transparent;
+      opacity: 0;
+      transform: translateX(8px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .pv-card.pv-card--visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .pv-card.pv-card--bolo { border-color: rgba(34,197,94,.3); }
+    .pv-card.pv-card--skip { border-color: rgba(136,136,136,.15); }
+    .pv-card-brand {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .pv-card-meta {
+      font-size: .62rem;
+      color: var(--gray-4);
+      margin: 0 8px;
+      white-space: nowrap;
+    }
+    .pv-badge {
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .pv-badge--bolo {
+      background: rgba(34,197,94,.15);
+      color: var(--green);
+    }
+    .pv-badge--skip {
+      background: rgba(136,136,136,.1);
+      color: var(--gray-4);
+    }
+    @keyframes pvRowFadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pvScanMove {
+      0%   { left: -2px; opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { left: 66px; opacity: 0; }
+    }
+    @keyframes pvParticleFlow {
+      0%   { left: -4px; top: var(--ty,50%); opacity: 0; }
+      10%  { opacity: .9; }
+      90%  { opacity: .9; }
+      100% { left: 68px; top: var(--ty,50%); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .pipeline-viz * {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      .pv-scan-line { display: none; }
     }
 
     /* ── SAMPLE TABLE ── */
@@ -169,7 +361,8 @@
       font-size: 1.5rem;
       font-weight: 700;
       letter-spacing: -.02em;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      line-height: 1.2;
     }
     .section-sub {
       color: var(--gray-4);
@@ -223,67 +416,38 @@
       font-size: .75rem;
       font-weight: 700;
     }
-    .str-high { color: var(--green); font-weight: 600; }
-    .str-low  { color: var(--gray-4); }
+    .str-high  { color: var(--green); font-weight: 600; }
+    .str-low   { color: var(--gray-4); }
     .brand-name { color: var(--white); font-weight: 600; }
+    .str-move  {
+      font-size: .72em;
+      font-weight: 600;
+      margin-left: 5px;
+      letter-spacing: -.01em;
+    }
+    .str-up { color: var(--green); }
+    .str-dn { color: var(--red); }
 
-    /* ── HOW IT WORKS ── */
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 24px;
-      margin-top: 32px;
+    /* ── BOTTOM STRIP ── */
+    .bottom-strip {
+      padding: 60px 0;
+      text-align: center;
+      border-top: 1px solid var(--gray-2);
     }
-    .step {
-      background: var(--gray-1);
-      border: 1px solid var(--gray-2);
-      border-radius: 10px;
-      padding: 24px;
-    }
-    .step-num {
-      font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--accent);
+    .bottom-strip h2 {
+      font-size: 1.75rem;
       margin-bottom: 10px;
     }
-    .step h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .step p {
-      font-size: .875rem;
+    .bottom-strip p {
       color: var(--gray-4);
-      line-height: 1.6;
+      margin-bottom: 32px;
+      font-size: .95rem;
     }
-
-    /* ── WHAT YOU GET ── */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-top: 32px;
-    }
-    .feature {
-      border: 1px solid var(--gray-2);
-      border-radius: 10px;
-      padding: 20px;
-    }
-    .feature-icon { font-size: 1.4rem; margin-bottom: 10px; }
-    .feature h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
-    .feature p  { font-size: .825rem; color: var(--gray-4); line-height: 1.6; }
-
-    /* ── CTA BOTTOM ── */
-    .cta-bottom { text-align: center; }
-    .cta-bottom h2 { font-size: 1.75rem; margin-bottom: 12px; }
-    .cta-bottom p  { color: var(--gray-4); margin-bottom: 32px; }
-    .cta-bottom .signup-form { justify-content: center; }
+    .bottom-strip .signup-form { justify-content: center; }
 
     /* ── FOOTER ── */
     footer {
-      padding: 32px 24px;
+      padding: 24px;
       text-align: center;
       font-size: .8rem;
       color: var(--gray-3);
@@ -293,8 +457,8 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 520px) {
       section { padding: 60px 0; }
-      .hero   { padding: 72px 0 60px; }
-      .stats  { gap: 24px; }
+      .hero-content { padding: 100px 0 80px; }
+      .bottom-strip { padding: 48px 0; }
       .signup-form { flex-direction: column; }
       .signup-form input[type="email"],
       .btn { width: 100%; }
@@ -306,53 +470,71 @@
 
   <!-- NAV -->
   <nav>
-    <span class="logo">BOLO Report</span>
+    <span class="logo">BOLO Tracker</span>
     <span class="nav-tag">Free for resellers</span>
   </nav>
 
   <!-- HERO -->
   <section class="hero">
-    <div class="wrap">
-      <span class="eyebrow">Free weekly newsletter</span>
-      <h1>Know which brands to<br>source <em>before everyone else.</em></h1>
+
+    <!-- Full-bleed background animation -->
+    <div class="pipeline-viz" id="pipelineViz" aria-hidden="true">
+      <div class="pv-panel pv-raw">
+        <div class="pv-panel-label">Raw eBay Feed</div>
+        <div class="pv-rows" id="pvRawRows"></div>
+      </div>
+      <div class="pv-processor">
+        <div class="pv-scan-track">
+          <div class="pv-scan-line" id="pvScanLine"></div>
+        </div>
+        <div class="pv-particles" id="pvParticles"></div>
+        <div class="pv-proc-label">Processing</div>
+      </div>
+      <div class="pv-panel pv-output">
+        <div class="pv-panel-label">BOLO Signals</div>
+        <div class="pv-cards" id="pvCards"></div>
+      </div>
+    </div>
+
+    <!-- Foreground content -->
+    <div class="wrap hero-content">
+      <span class="eyebrow">Men's clothing &middot; Free every Sunday</span>
+      <h1>By the time YouTube posts it,<br><em>the brand is already dead.</em></h1>
       <p class="hero-sub">
-        Every Sunday we scan thousands of eBay menswear listings and tell you
-        exactly which brands are selling fast, what they clear for, and how
-        much profit is left after fees. You source smarter. We do the math.
+        BOLO Tracker scans thousands of eBay sold listings every week
+        and delivers the top&nbsp;10 men's BOLOs across 15 categories
+        &mdash; every Sunday, before the week starts. Real
+        sell-through data. Not YouTuber opinion.
       </p>
 
       <!-- SIGNUP FORM — replace with Beehiiv embed once account is set up -->
       <div class="beehiiv-embed">
         <form class="signup-form" onsubmit="return false;">
-          <input type="email" placeholder="your@email.com" autocomplete="email" />
-          <button class="btn" type="submit">Get the Free Report &rarr;</button>
+          <input
+            type="email"
+            placeholder="your@email.com"
+            autocomplete="email"
+          />
+          <button class="btn" type="submit">
+            Get This Sunday's Report &rarr;
+          </button>
         </form>
-        <p class="form-note">Free forever &middot; One email per week &middot; Unsubscribe anytime</p>
-      </div>
-
-      <!-- STATS -->
-      <div class="stats">
-        <div class="stat-item">
-          <div class="stat-num">15</div>
-          <div class="stat-label">Categories tracked</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">100+</div>
-          <div class="stat-label">Brands analyzed weekly</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">Every Sunday</div>
-          <div class="stat-label">Fresh in your inbox</div>
-        </div>
+        <p class="form-note">
+          Free to join &middot; One email per week &middot;
+          Unsubscribe anytime
+        </p>
       </div>
     </div>
+
   </section>
 
   <!-- SAMPLE DATA -->
   <section>
     <div class="wrap">
-      <h2>This week's BOLO signals</h2>
-      <p class="section-sub">Sample from last Sunday's report &mdash; casual shirts category</p>
+      <h2>You already know how to sell.<br>You just need to know what to pick up.</h2>
+      <p class="section-sub">
+        Sample from last Sunday's report &mdash; men's casual shirts
+      </p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -367,28 +549,28 @@
           <tbody>
             <tr>
               <td class="brand-name">Faherty</td>
-              <td class="str-high">325%</td>
+              <td class="str-high">325% <span class="str-move str-up">&#9650;18%</span></td>
               <td>$74.00</td>
               <td>$57.06</td>
               <td><span class="bolo-yes">BOLO</span></td>
             </tr>
             <tr>
               <td class="brand-name">Billy Reid</td>
-              <td class="str-high">314%</td>
+              <td class="str-high">314% <span class="str-move str-dn">&#9660;2%</span></td>
               <td>$68.50</td>
               <td>$52.20</td>
               <td><span class="bolo-yes">BOLO</span></td>
             </tr>
             <tr>
               <td class="brand-name">Peter Millar</td>
-              <td class="str-high">231%</td>
+              <td class="str-high">231% <span class="str-move str-up">&#9650;8%</span></td>
               <td>$61.00</td>
               <td>$45.57</td>
               <td><span class="bolo-yes">BOLO</span></td>
             </tr>
             <tr>
               <td class="brand-name">Untuckit</td>
-              <td class="str-low">37%</td>
+              <td class="str-low">37% <span class="str-move str-dn">&#9660;15%</span></td>
               <td>$45.00</td>
               <td>$31.43</td>
               <td><span class="bolo-no">SKIP</span></td>
@@ -399,82 +581,184 @@
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-  <section>
+  <!-- BOTTOM STRIP -->
+  <div class="bottom-strip">
     <div class="wrap">
-      <h2>How it works</h2>
-      <p class="section-sub">Three steps. Zero guesswork.</p>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">Step 01</div>
-          <h3>We scrape</h3>
-          <p>Every week our pipeline scans active and sold eBay listings across 15 menswear categories.</p>
-        </div>
-        <div class="step">
-          <div class="step-num">Step 02</div>
-          <h3>We calculate</h3>
-          <p>Sell-through rate, average clearing price, eBay fees, and net profit — after every deduction.</p>
-        </div>
-        <div class="step">
-          <div class="step-num">Step 03</div>
-          <h3>You source</h3>
-          <p>You get the BOLO list every Sunday morning. Know what to pick up before the week starts.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHAT YOU GET -->
-  <section>
-    <div class="wrap">
-      <h2>What's in every report</h2>
-      <p class="section-sub">Actionable numbers, not fluff.</p>
-      <div class="features">
-        <div class="feature">
-          <div class="feature-icon">📊</div>
-          <h3>Sell-Through Rate</h3>
-          <p>Sold ÷ Active. Anything above 100% means demand outpaces supply.</p>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">💵</div>
-          <h3>Net Profit Estimate</h3>
-          <p>After COGS, eBay fees, and shipping. You see the real number, not the sale price.</p>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">👕</div>
-          <h3>15 Categories</h3>
-          <p>Shirts, jeans, coats, activewear, polos, sweaters, hoodies, pants, shorts and more.</p>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">🎯</div>
-          <h3>BOLO Flag</h3>
-          <p>Every brand that meets the threshold is flagged. One scan, clear decision.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA BOTTOM -->
-  <section class="cta-bottom">
-    <div class="wrap">
-      <h2>Start sourcing with an edge.</h2>
-      <p>Join resellers getting the free weekly BOLO report every Sunday.</p>
+      <h2>Stop guessing at the rack.</h2>
+      <p>
+        Fresh men's BOLO data, every Sunday. Men's only &mdash;
+        no womenswear, no kidswear.
+      </p>
 
       <!-- SIGNUP FORM — replace with Beehiiv embed once account is set up -->
       <div class="beehiiv-embed">
         <form class="signup-form" onsubmit="return false;">
-          <input type="email" placeholder="your@email.com" autocomplete="email" />
-          <button class="btn" type="submit">Get the Free Report &rarr;</button>
+          <input
+            type="email"
+            placeholder="your@email.com"
+            autocomplete="email"
+          />
+          <button class="btn" type="submit">
+            Get This Sunday's Report &rarr;
+          </button>
         </form>
-        <p class="form-note">Free forever &middot; One email per week &middot; Unsubscribe anytime</p>
+        <p class="form-note">
+          Free to join &middot; One email per week &middot;
+          Unsubscribe anytime
+        </p>
       </div>
     </div>
-  </section>
+  </div>
 
   <!-- FOOTER -->
   <footer>
-    &copy; 2026 BOLO Report &mdash; Built for resellers, by a reseller.
+    &copy; 2026 BOLO Tracker &mdash; Built for resellers, by a
+    reseller.
   </footer>
 
+<script>
+(function () {
+  var RAW = [
+    { title: 'Faherty Brand linen shirt sz M blue stripe',
+      price: '$18', sold: '47 sold', date: '3d ago' },
+    { title: 'Billy Reid cotton Oxford sz L cream',
+      price: '$12', sold: '39 sold', date: '1d ago' },
+    { title: 'Peter Millar summer comfort polo sz XL',
+      price: '$9',  sold: '31 sold', date: '5d ago' },
+    { title: 'Untuckit slim fit button-down sz L gray',
+      price: '$11', sold: '8 sold',  date: '7d ago' },
+    { title: 'Faherty hemp blend tee sz S heather',
+      price: '$7',  sold: '22 sold', date: '2d ago' },
+    { title: 'Billy Reid Elton shirt sz M washed indigo',
+      price: '$15', sold: '44 sold', date: '4d ago' },
+    { title: 'RRL slim fit chino sz 32x30 olive',
+      price: '$22', sold: '19 sold', date: '1d ago' },
+    { title: 'Todd Snyder camp collar sz L floral',
+      price: '$14', sold: '28 sold', date: '6d ago' },
+  ];
+
+  var OUTPUT = [
+    { brand: 'Faherty',      str: '325%', profit: '$57', bolo: true },
+    { brand: 'Billy Reid',   str: '314%', profit: '$52', bolo: true },
+    { brand: 'Peter Millar', str: '231%', profit: '$46', bolo: true },
+    { brand: 'Todd Snyder',  str: '188%', profit: '$41', bolo: true },
+    { brand: 'Untuckit',     str: '37%',  profit: '$31', bolo: false },
+  ];
+
+  var rawRows   = document.getElementById('pvRawRows');
+  var cards     = document.getElementById('pvCards');
+  var particles = document.getElementById('pvParticles');
+  var viz       = document.getElementById('pipelineViz');
+  if (!viz) return;
+
+  var tickerInterval = null;
+
+  function buildRow(listing, delay) {
+    var el = document.createElement('div');
+    el.className = 'pv-row';
+    el.style.animationDelay = delay + 'ms';
+    el.innerHTML =
+      '<div class="pv-row-title">' + listing.title + '</div>' +
+      '<div class="pv-row-meta"><span>' + listing.price +
+      '</span><span>' + listing.sold + '</span><span>' +
+      listing.date + '</span></div>';
+    return el;
+  }
+
+  function buildCard(item) {
+    var el = document.createElement('div');
+    el.className = 'pv-card ' +
+      (item.bolo ? 'pv-card--bolo' : 'pv-card--skip');
+    el.innerHTML =
+      '<div class="pv-card-brand">' + item.brand + '</div>' +
+      '<div class="pv-card-meta">' + item.str +
+      ' \u00b7 ' + item.profit + '</div>' +
+      '<div class="pv-badge ' +
+      (item.bolo ? 'pv-badge--bolo' : 'pv-badge--skip') + '">' +
+      (item.bolo ? 'BOLO' : 'SKIP') + '</div>';
+    return el;
+  }
+
+  function spawnParticle() {
+    var p = document.createElement('div');
+    p.className = 'pv-particle';
+    p.style.setProperty('--ty', (20 + Math.random() * 60) + '%');
+    p.style.setProperty('--dur',
+      (0.9 + Math.random() * 0.6).toFixed(2) + 's');
+    p.style.setProperty('--delay',
+      (Math.random() * 0.4).toFixed(2) + 's');
+    particles.appendChild(p);
+    setTimeout(function () { p.remove(); }, 5000);
+  }
+
+  function reset() {
+    rawRows.innerHTML = '';
+    cards.innerHTML = '';
+    particles.innerHTML = '';
+    clearInterval(tickerInterval);
+  }
+
+  function runCycle() {
+    reset();
+
+    RAW.forEach(function (listing, i) {
+      rawRows.appendChild(buildRow(listing, i * 180));
+    });
+
+    tickerInterval = setInterval(spawnParticle, 180);
+
+    setTimeout(function () {
+      Array.from(rawRows.children).forEach(function (r, i) {
+        setTimeout(function () {
+          r.classList.add('pv-row--scanning');
+        }, i * 100);
+      });
+    }, 1400);
+
+    setTimeout(function () {
+      OUTPUT.forEach(function (item, i) {
+        var card = buildCard(item);
+        cards.appendChild(card);
+        setTimeout(function () {
+          requestAnimationFrame(function () {
+            card.classList.add('pv-card--visible');
+          });
+        }, i * 320 + 50);
+      });
+    }, 3200);
+
+    setTimeout(function () {
+      clearInterval(tickerInterval);
+    }, 5800);
+
+    setTimeout(function () {
+      viz.style.transition = 'opacity .6s ease';
+      viz.style.opacity = '0';
+    }, 7400);
+
+    setTimeout(function () {
+      viz.style.transition = 'none';
+      viz.style.opacity = '.18';
+      runCycle();
+    }, 8400);
+  }
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    RAW.slice(0, 6).forEach(function (l) {
+      var r = buildRow(l, 0);
+      r.style.opacity = '1';
+      r.style.animation = 'none';
+      rawRows.appendChild(r);
+    });
+    OUTPUT.forEach(function (item) {
+      var c = buildCard(item);
+      c.classList.add('pv-card--visible');
+      cards.appendChild(c);
+    });
+  } else {
+    setTimeout(runCycle, 600);
+  }
+})();
+</script>
 </body>
 </html>
