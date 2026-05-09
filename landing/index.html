@@ -5,518 +5,674 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOLO Tracker — Free Weekly eBay BOLO List for Men's Clothing Resellers</title>
   <meta name="description" content="The free weekly BOLO list built on real eBay sell-through data — not YouTube opinion. Top 10 men's BOLOs across 15 categories, every Sunday." />
-
-  <!-- Open Graph -->
   <meta property="og:title" content="BOLO Tracker — Free eBay BOLO List for Men's Clothing Resellers" />
   <meta property="og:description" content="Real eBay sell-through data. Top 10 men's BOLOs across 15 categories. Every Sunday, before the week starts." />
   <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black:  #0f0f0f;
-      --white:  #ffffff;
-      --gray-1: #1a1a1a;
-      --gray-2: #2a2a2a;
-      --gray-3: #444444;
-      --gray-4: #888888;
-      --gray-5: #cccccc;
-      --accent: #e8ff00;
-      --green:  #22c55e;
-      --red:    #ef4444;
-      --font:   'Inter', system-ui, -apple-system, sans-serif;
-      --max:    720px;
+      --bg:        #F3F0E9;
+      --surface:   #FFFFFF;
+      --text:      #15130E;
+      --text-2:    #6A6760;
+      --text-3:    #B2AFA8;
+      --rule:      #E4E1DA;
+      --green:     #15803D;
+      --green-bg:  #DCFCE7;
+      --red:       #B91C1C;
+      --red-bg:    #FEE2E2;
+      --sans:      'DM Sans', system-ui, sans-serif;
+      --serif:     'Playfair Display', Georgia, serif;
+      --mono:      'IBM Plex Mono', monospace;
     }
 
-    html { font-size: 16px; scroll-behavior: smooth; }
+    html, body {
+      height: 100%;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
 
     body {
-      font-family: var(--font);
-      background: var(--black);
-      color: var(--white);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
     }
 
-    /* ── LAYOUT ── */
-    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-    section { padding: 80px 0; }
-    section + section { border-top: 1px solid var(--gray-2); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
 
-    /* ── NAV ── */
+    /*=======================================================================
+    # NAV
+    =======================================================================*/
+
     nav {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 10;
-      padding: 20px 24px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 58px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-    .logo {
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .nav-tag {
-      font-size: .75rem;
-      color: var(--gray-4);
-      letter-spacing: .08em;
-      text-transform: uppercase;
+      padding: 0 44px;
+      background: rgba(243,240,233,.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(228,225,218,.7);
     }
 
-    /* ── HERO ── */
-    .hero {
-      position: relative;
-      min-height: 100vh;
+    .nav-logo {
       display: flex;
       align-items: center;
-      overflow: hidden;
-    }
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 160px;
-      background: linear-gradient(to bottom, transparent, var(--black));
-      z-index: 2;
-      pointer-events: none;
-    }
-    .hero-content {
-      position: relative;
-      z-index: 3;
-      width: 100%;
-      padding: 120px 0 100px;
-    }
-    .eyebrow {
-      display: inline-block;
-      font-size: .75rem;
+      gap: 8px;
+      font-family: var(--sans);
+      font-size: .82rem;
       font-weight: 600;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 20px;
-    }
-    h1 {
-      font-size: clamp(2rem, 5vw, 3.25rem);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -.03em;
-      margin-bottom: 24px;
-    }
-    h1 em {
-      font-style: normal;
-      color: var(--accent);
-    }
-    .hero-sub {
-      font-size: 1.125rem;
-      color: var(--gray-5);
-      max-width: 520px;
-      margin-bottom: 40px;
-      line-height: 1.7;
+      letter-spacing: .01em;
+      color: var(--text);
+      text-decoration: none;
     }
 
-    /* ── FORM ── */
-    .signup-form {
+    .logo-pip {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    .nav-center {
+      font-size: .76rem;
+      color: var(--text-2);
+      letter-spacing: .01em;
+    }
+
+    .nav-actions {
       display: flex;
+      align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
     }
-    .signup-form input[type="email"] {
-      flex: 1;
-      min-width: 220px;
-      padding: 14px 18px;
-      font-size: 1rem;
-      background: var(--gray-1);
-      border: 1px solid var(--gray-3);
-      border-radius: 8px;
-      color: var(--white);
-      outline: none;
-      transition: border-color .2s;
+
+    .btn-ghost {
+      font-family: var(--sans);
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--text-2);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 2px;
+      transition: color .15s;
     }
-    .signup-form input[type="email"]:focus {
-      border-color: var(--accent);
-    }
-    .signup-form input[type="email"]::placeholder {
-      color: var(--gray-4);
-    }
-    .btn {
-      padding: 14px 28px;
-      font-size: 1rem;
-      font-weight: 700;
-      background: var(--accent);
-      color: var(--black);
+    .btn-ghost:hover { color: var(--text); }
+
+    .btn-dark {
+      font-family: var(--sans);
+      font-size: .8rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      background: var(--text);
+      color: var(--bg);
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: opacity .15s;
       white-space: nowrap;
     }
-    .btn:hover { opacity: .88; }
-    .form-note {
-      font-size: .8rem;
-      color: var(--gray-4);
-    }
+    .btn-dark:hover { opacity: .82; }
 
-    /* Beehiiv embed swap — delete .signup-form block above and
-       paste the Beehiiv iframe here once account is set up.    */
+    /*=======================================================================
+    # HERO
+    =======================================================================*/
 
-    /*===================================================================
-       PIPELINE ANIMATION — full-bleed hero background
-    ===================================================================*/
-
-    .pipeline-viz {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      display: grid;
-      grid-template-columns: 1fr 64px 1fr;
-      opacity: .18;
-      background: transparent;
-      font-family: 'SF Mono', 'Fira Mono', monospace;
-      pointer-events: none;
-    }
-    .pv-panel {
-      padding: 80px 32px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow: hidden;
-    }
-    .pv-panel-label {
-      font-size: .65rem;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--gray-4);
-      margin-bottom: 8px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--gray-2);
-    }
-    .pv-raw { border-right: 1px solid var(--gray-2); }
-    .pv-row {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      opacity: 0;
-      animation: pvRowFadeIn .3s ease forwards;
-    }
-    .pv-row-title {
-      font-size: .75rem;
-      color: var(--gray-5);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .pv-row-meta {
-      font-size: .65rem;
-      color: var(--gray-4);
-    }
-    .pv-row-meta span { margin-right: 10px; }
-    .pv-row.pv-row--scanning .pv-row-title,
-    .pv-row.pv-row--scanning .pv-row-meta {
-      color: var(--accent);
-      opacity: .7;
-    }
-    .pv-processor {
+    .hero {
       position: relative;
+      height: 100vh;
+      padding-top: 58px;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      border-right: 1px solid var(--gray-2);
-      border-left: 1px solid var(--gray-2);
-      overflow: visible;
-      z-index: 2;
-    }
-    .pv-scan-track {
-      position: absolute;
-      inset: 0;
       overflow: hidden;
     }
-    .pv-scan-line {
+
+    /* Warm radial gradient — mimics the Steep reference */
+    .hero::before {
+      content: '';
       position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(
-        to bottom,
-        transparent 0%,
-        var(--accent) 30%,
-        var(--accent) 70%,
-        transparent 100%
-      );
-      box-shadow: 0 0 10px 3px rgba(232,255,0,.5);
-      left: -2px;
-      animation: pvScanMove 2s cubic-bezier(.4,0,.6,1) infinite;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 62% 52%, rgba(255,178,96,.17) 0%, transparent 66%),
+        radial-gradient(ellipse 38% 38% at 22% 70%, rgba(185,210,255,.10) 0%, transparent 58%);
+      z-index: 0;
     }
-    .pv-proc-label {
-      font-size: .5rem;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--gray-4);
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transform: rotate(180deg);
+
+    /*=======================================================================
+    # HERO CENTER CONTENT
+    =======================================================================*/
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      max-width: 560px;
+      padding: 0 24px;
+      animation: fadeUp .55s ease both;
+      animation-delay: .05s;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .74rem;
+      font-weight: 500;
+      color: var(--text-2);
+      margin-bottom: 20px;
+    }
+
+    .eyebrow-pip {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 4vw, 3.75rem);
+      font-weight: 700;
+      line-height: 1.09;
+      letter-spacing: -.02em;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    h1 em {
+      font-style: italic;
+      font-weight: 700;
+    }
+
+    .hero-sub {
+      font-size: .98rem;
+      line-height: 1.66;
+      color: var(--text-2);
+      max-width: 440px;
+      margin: 0 auto 34px;
+    }
+
+    /*=======================================================================
+    # HERO FORM
+    =======================================================================*/
+
+    /* Replace .hero-form block with Beehiiv embed once account is set up */
+
+    .hero-form-wrap {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .hero-form {
+      display: flex;
+      border-radius: 11px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(21,19,14,.09),
+        0 2px 12px rgba(21,19,14,.07);
+      margin-bottom: 12px;
+    }
+
+    .hero-form input[type="email"] {
+      flex: 1;
+      padding: 12px 16px;
+      font-family: var(--sans);
+      font-size: .88rem;
+      background: var(--surface);
+      border: none;
+      color: var(--text);
+      outline: none;
+      min-width: 0;
+    }
+
+    .hero-form input[type="email"]::placeholder {
+      color: var(--text-3);
+    }
+
+    .hero-form .btn-submit {
+      padding: 12px 20px;
+      font-family: var(--sans);
+      font-size: .8rem;
+      font-weight: 600;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .15s;
+      flex-shrink: 0;
+    }
+    .hero-form .btn-submit:hover { opacity: .82; }
+
+    .form-note {
+      font-size: .72rem;
+      color: var(--text-3);
+    }
+
+    /*=======================================================================
+    # FLOATING CARDS — base
+    =======================================================================*/
+
+    .card {
+      position: absolute;
+      background: var(--surface);
+      border-radius: 14px;
+      box-shadow:
+        0 0 0 1px rgba(21,19,14,.055),
+        0 4px 24px rgba(21,19,14,.08),
+        0 1px 4px rgba(21,19,14,.04);
+      z-index: 5;
       pointer-events: none;
     }
-    .pv-particle {
-      position: absolute;
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: var(--accent);
-      opacity: 0;
-      animation: pvParticleFlow var(--dur,1.2s) ease-in
-        var(--delay,0s) infinite;
+
+    /*=======================================================================
+    # CARD 1 — BOLO Signals (left, bar chart)
+    =======================================================================*/
+
+    .card-signals {
+      left: 5%;
+      top: 50%;
+      transform: translateY(-42%);
+      width: 256px;
+      padding: 18px 20px;
+      animation: fadeUp .6s ease both;
+      animation-delay: .28s;
     }
-    .pv-card {
+
+    .card-label {
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 3px;
+    }
+
+    .card-desc {
+      font-size: .72rem;
+      color: var(--text-2);
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .bar-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      background: var(--gray-2);
-      border-radius: 6px;
-      border: 1px solid transparent;
-      opacity: 0;
-      transform: translateX(8px);
-      transition: opacity .35s ease, transform .35s ease;
+      gap: 8px;
+      margin-bottom: 9px;
     }
-    .pv-card.pv-card--visible {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    .pv-card.pv-card--bolo { border-color: rgba(34,197,94,.3); }
-    .pv-card.pv-card--skip { border-color: rgba(136,136,136,.15); }
-    .pv-card-brand {
-      font-size: .72rem;
-      font-weight: 700;
-      color: var(--white);
+    .bar-row:last-child { margin-bottom: 0; }
+
+    .bar-name {
+      font-size: .71rem;
+      font-weight: 500;
+      color: var(--text);
+      width: 84px;
+      flex-shrink: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .bar-track {
       flex: 1;
-    }
-    .pv-card-meta {
-      font-size: .62rem;
-      color: var(--gray-4);
-      margin: 0 8px;
-      white-space: nowrap;
-    }
-    .pv-badge {
-      font-size: .6rem;
-      font-weight: 700;
-      letter-spacing: .06em;
-      padding: 2px 7px;
+      height: 5px;
+      background: #EBE8E1;
       border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--text-3);
+    }
+    .bar-fill.is-bolo { background: var(--green); }
+
+    .bar-pct {
+      font-family: var(--mono);
+      font-size: .63rem;
+      color: var(--text-2);
+      width: 34px;
+      text-align: right;
       flex-shrink: 0;
     }
-    .pv-badge--bolo {
-      background: rgba(34,197,94,.15);
-      color: var(--green);
-    }
-    .pv-badge--skip {
-      background: rgba(136,136,136,.1);
-      color: var(--gray-4);
-    }
-    @keyframes pvRowFadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pvScanMove {
-      0%   { left: -2px; opacity: 0; }
-      5%   { opacity: 1; }
-      95%  { opacity: 1; }
-      100% { left: 66px; opacity: 0; }
-    }
-    @keyframes pvParticleFlow {
-      0%   { left: -4px; top: var(--ty,50%); opacity: 0; }
-      10%  { opacity: .9; }
-      90%  { opacity: .9; }
-      100% { left: 68px; top: var(--ty,50%); opacity: 0; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .pipeline-viz * {
-        animation: none !important;
-        transition: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-      }
-      .pv-scan-line { display: none; }
-    }
 
-    /* ── SAMPLE TABLE ── */
-    h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      margin-bottom: 8px;
-      line-height: 1.2;
-    }
-    .section-sub {
-      color: var(--gray-4);
-      margin-bottom: 32px;
-      font-size: .95rem;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--gray-2);
-      border-radius: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .875rem;
-    }
-    thead { background: var(--gray-1); }
-    th {
-      padding: 12px 16px;
-      text-align: left;
-      font-size: .72rem;
+    .bar-badge {
+      font-size: .58rem;
       font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--gray-4);
-      white-space: nowrap;
-    }
-    td {
-      padding: 13px 16px;
-      border-top: 1px solid var(--gray-2);
-      color: var(--gray-5);
-      white-space: nowrap;
-    }
-    tr:hover td { background: var(--gray-1); }
-    .bolo-yes {
-      display: inline-block;
-      padding: 3px 9px;
-      background: rgba(34,197,94,.15);
-      color: var(--green);
+      letter-spacing: .04em;
+      padding: 2px 6px;
       border-radius: 4px;
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .05em;
+      flex-shrink: 0;
     }
-    .bolo-no {
-      display: inline-block;
-      padding: 3px 9px;
-      background: rgba(136,136,136,.1);
-      color: var(--gray-4);
-      border-radius: 4px;
-      font-size: .75rem;
-      font-weight: 700;
-    }
-    .str-high  { color: var(--green); font-weight: 600; }
-    .str-low   { color: var(--gray-4); }
-    .brand-name { color: var(--white); font-weight: 600; }
-    .str-move  {
-      font-size: .72em;
-      font-weight: 600;
-      margin-left: 5px;
-      letter-spacing: -.01em;
-    }
-    .str-up { color: var(--green); }
-    .str-dn { color: var(--red); }
+    .bar-badge.is-bolo { background: var(--green-bg); color: var(--green); }
+    .bar-badge.is-skip { background: #ECEAE4; color: var(--text-3); }
 
-    /* ── BOTTOM STRIP ── */
-    .bottom-strip {
-      padding: 60px 0;
+    /*=======================================================================
+    # CARD 2 — BOLO Rate donut (right)
+    =======================================================================*/
+
+    .card-rate {
+      right: 5%;
+      top: 50%;
+      transform: translateY(-58%);
+      width: 174px;
+      padding: 18px 18px 16px;
       text-align: center;
-      border-top: 1px solid var(--gray-2);
+      animation: fadeUp .6s ease both;
+      animation-delay: .38s;
     }
-    .bottom-strip h2 {
-      font-size: 1.75rem;
+
+    .donut-wrap {
+      position: relative;
+      width: 82px;
+      height: 82px;
+      margin: 10px auto 10px;
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-rate-sub {
+      font-size: .7rem;
+      color: var(--text-2);
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .rate-divider {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 10px 0;
+    }
+
+    .top-pick-label {
+      font-size: .62rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+
+    .top-pick-brand {
+      font-size: .84rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .top-pick-delta {
+      font-size: .68rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    /*=======================================================================
+    # CARD 3 — STR Trend sparkline (bottom-left)
+    =======================================================================*/
+
+    .card-trend {
+      left: 3%;
+      bottom: 9%;
+      width: 214px;
+      padding: 14px 16px 12px;
+      animation: fadeUp .6s ease both;
+      animation-delay: .48s;
+    }
+
+    .trend-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
       margin-bottom: 10px;
     }
-    .bottom-strip p {
-      color: var(--gray-4);
-      margin-bottom: 32px;
-      font-size: .95rem;
-    }
-    .bottom-strip .signup-form { justify-content: center; }
 
-    /* ── FOOTER ── */
-    footer {
-      padding: 24px;
-      text-align: center;
-      font-size: .8rem;
-      color: var(--gray-3);
-      border-top: 1px solid var(--gray-2);
+    .trend-brand {
+      font-size: .76rem;
+      font-weight: 600;
+      color: var(--text);
     }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 520px) {
-      section { padding: 60px 0; }
-      .hero-content { padding: 100px 0 80px; }
-      .bottom-strip { padding: 48px 0; }
-      .signup-form { flex-direction: column; }
-      .signup-form input[type="email"],
-      .btn { width: 100%; }
+    .trend-type {
+      font-size: .65rem;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    .trend-delta {
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--green);
+      flex-shrink: 0;
+    }
+
+    .sparkline {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .trend-note {
+      font-size: .64rem;
+      color: var(--text-3);
+    }
+
+    /*=======================================================================
+    # MOBILE
+    =======================================================================*/
+
+    @media (max-width: 1060px) {
+      .card { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      html, body { overflow: auto; }
+      .hero { height: auto; min-height: 100vh; padding-bottom: 60px; }
+      nav { padding: 0 20px; }
+      .nav-center { display: none; }
+      .btn-ghost { display: none; }
+    }
+
+    @media (max-width: 400px) {
+      .hero-form { flex-direction: column; border-radius: 11px; }
+      .hero-form input[type="email"] { border-radius: 11px 11px 0 0; }
+      .hero-form .btn-submit { border-radius: 0 0 11px 11px; padding: 14px; }
     }
   </style>
 </head>
-
 <body>
 
   <!-- NAV -->
   <nav>
-    <span class="logo">BOLO Tracker</span>
-    <span class="nav-tag">Free for resellers</span>
+    <a class="nav-logo" href="#">
+      <span class="logo-pip"></span>
+      BOLO Tracker
+    </a>
+    <span class="nav-center">
+      Men's clothing &middot; Free &middot; Every Sunday
+    </span>
+    <div class="nav-actions">
+      <button class="btn-ghost"
+        onclick="document.getElementById('emailInput').focus()">
+        See sample
+      </button>
+      <button class="btn-dark"
+        onclick="document.getElementById('emailInput').focus()">
+        Get started
+      </button>
+    </div>
   </nav>
 
   <!-- HERO -->
   <section class="hero">
 
-    <!-- Full-bleed background animation -->
-    <div class="pipeline-viz" id="pipelineViz" aria-hidden="true">
-      <div class="pv-panel pv-raw">
-        <div class="pv-panel-label">Raw eBay Feed</div>
-        <div class="pv-rows" id="pvRawRows"></div>
-      </div>
-      <div class="pv-processor">
-        <div class="pv-scan-track">
-          <div class="pv-scan-line" id="pvScanLine"></div>
+    <!-- CARD 1: BOLO Signals — left, bar chart -->
+    <div class="card card-signals" aria-hidden="true">
+      <div class="card-label">BOLO Signals</div>
+      <div class="card-desc">Men's casual shirts &middot; this Sunday</div>
+
+      <div class="bar-row">
+        <span class="bar-name">Faherty</span>
+        <div class="bar-track">
+          <div class="bar-fill is-bolo" style="width:100%"></div>
         </div>
-        <div class="pv-particles" id="pvParticles"></div>
-        <div class="pv-proc-label">Processing</div>
+        <span class="bar-pct">325%</span>
+        <span class="bar-badge is-bolo">BOLO</span>
       </div>
-      <div class="pv-panel pv-output">
-        <div class="pv-panel-label">BOLO Signals</div>
-        <div class="pv-cards" id="pvCards"></div>
+      <div class="bar-row">
+        <span class="bar-name">Billy Reid</span>
+        <div class="bar-track">
+          <div class="bar-fill is-bolo" style="width:97%"></div>
+        </div>
+        <span class="bar-pct">314%</span>
+        <span class="bar-badge is-bolo">BOLO</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-name">Peter Millar</span>
+        <div class="bar-track">
+          <div class="bar-fill is-bolo" style="width:71%"></div>
+        </div>
+        <span class="bar-pct">231%</span>
+        <span class="bar-badge is-bolo">BOLO</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-name">Todd Snyder</span>
+        <div class="bar-track">
+          <div class="bar-fill is-bolo" style="width:58%"></div>
+        </div>
+        <span class="bar-pct">188%</span>
+        <span class="bar-badge is-bolo">BOLO</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-name">Untuckit</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:11%"></div>
+        </div>
+        <span class="bar-pct">37%</span>
+        <span class="bar-badge is-skip">SKIP</span>
       </div>
     </div>
 
-    <!-- Foreground content -->
-    <div class="wrap hero-content">
-      <span class="eyebrow">Men's clothing &middot; Free every Sunday</span>
-      <h1>By the time YouTube posts it,<br><em>the brand is already dead.</em></h1>
+    <!-- CARD 2: BOLO Rate — right, donut gauge -->
+    <div class="card card-rate" aria-hidden="true">
+      <div class="card-label">BOLO Rate</div>
+      <div class="donut-wrap">
+        <!--
+          r=30, circumference = 2π×30 = 188.5
+          80% = 150.8 · remaining = 37.7
+        -->
+        <svg viewBox="0 0 82 82" width="82" height="82" role="presentation">
+          <circle cx="41" cy="41" r="30"
+            fill="none" stroke="#EBE8E1" stroke-width="8"/>
+          <circle cx="41" cy="41" r="30"
+            fill="none" stroke="#15803D" stroke-width="8"
+            stroke-dasharray="150.8 37.7" stroke-linecap="round"
+            transform="rotate(-90 41 41)"/>
+        </svg>
+        <div class="donut-center">80%</div>
+      </div>
+      <div class="card-rate-sub">
+        4 of 5 brands BOLO'd<br>in casual shirts
+      </div>
+      <hr class="rate-divider" />
+      <div class="top-pick-label">Top pick</div>
+      <div class="top-pick-brand">Faherty</div>
+      <div class="top-pick-delta">&#9650; 18% vs last week</div>
+    </div>
+
+    <!-- CARD 3: STR Trend — bottom-left, sparkline -->
+    <div class="card card-trend" aria-hidden="true">
+      <div class="trend-header">
+        <div>
+          <div class="trend-brand">Faherty</div>
+          <div class="trend-type">STR Trend &middot; 8 weeks</div>
+        </div>
+        <div class="trend-delta">&#9650; 18%</div>
+      </div>
+      <svg class="sparkline" viewBox="0 0 182 42"
+        width="182" height="42" preserveAspectRatio="none"
+        role="presentation">
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#15803D" stop-opacity=".14"/>
+            <stop offset="100%" stop-color="#15803D" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path
+          d="M0,36 L24,32 L48,34 L72,26 L96,20 L120,15 L144,9 L168,5 L182,3"
+          fill="none" stroke="#15803D" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"/>
+        <path
+          d="M0,36 L24,32 L48,34 L72,26 L96,20 L120,15 L144,9 L168,5 L182,3 L182,42 L0,42 Z"
+          fill="url(#sg)"/>
+      </svg>
+      <div class="trend-note">Sell-through rate, last 8 weeks</div>
+    </div>
+
+    <!-- CENTER: headline + form -->
+    <div class="hero-content">
+      <div class="eyebrow">
+        <span class="eyebrow-pip"></span>
+        Men's clothing &middot; Free every Sunday
+      </div>
+
+      <h1>
+        By the time YouTube<br>
+        posts it, <em>the brand<br>
+        is already dead.</em>
+      </h1>
+
       <p class="hero-sub">
-        BOLO Tracker scans thousands of eBay sold listings every week
-        and delivers the top&nbsp;10 men's BOLOs across 15 categories
-        &mdash; every Sunday, before the week starts. Real
-        sell-through data. Not YouTuber opinion.
+        BOLO Tracker delivers the top 10 men's BOLOs across
+        15&nbsp;categories every Sunday &mdash; built on real eBay
+        sell-through data, not YouTuber opinion.
       </p>
 
-      <!-- SIGNUP FORM — replace with Beehiiv embed once account is set up -->
-      <div class="beehiiv-embed">
-        <form class="signup-form" onsubmit="return false;">
+      <!-- Replace with Beehiiv embed once account is set up -->
+      <div class="beehiiv-embed hero-form-wrap">
+        <form class="hero-form" onsubmit="return false;">
           <input
             type="email"
+            id="emailInput"
             placeholder="your@email.com"
             autocomplete="email"
           />
-          <button class="btn" type="submit">
-            Get This Sunday's Report &rarr;
+          <button class="btn-submit" type="submit">
+            Get Sunday's Report &rarr;
           </button>
         </form>
         <p class="form-note">
@@ -528,237 +684,5 @@
 
   </section>
 
-  <!-- SAMPLE DATA -->
-  <section>
-    <div class="wrap">
-      <h2>You already know how to sell.<br>You just need to know what to pick up.</h2>
-      <p class="section-sub">
-        Sample from last Sunday's report &mdash; men's casual shirts
-      </p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Brand</th>
-              <th>Sell-Through</th>
-              <th>Avg Sale</th>
-              <th>Net Profit</th>
-              <th>Signal</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="brand-name">Faherty</td>
-              <td class="str-high">325% <span class="str-move str-up">&#9650;18%</span></td>
-              <td>$74.00</td>
-              <td>$57.06</td>
-              <td><span class="bolo-yes">BOLO</span></td>
-            </tr>
-            <tr>
-              <td class="brand-name">Billy Reid</td>
-              <td class="str-high">314% <span class="str-move str-dn">&#9660;2%</span></td>
-              <td>$68.50</td>
-              <td>$52.20</td>
-              <td><span class="bolo-yes">BOLO</span></td>
-            </tr>
-            <tr>
-              <td class="brand-name">Peter Millar</td>
-              <td class="str-high">231% <span class="str-move str-up">&#9650;8%</span></td>
-              <td>$61.00</td>
-              <td>$45.57</td>
-              <td><span class="bolo-yes">BOLO</span></td>
-            </tr>
-            <tr>
-              <td class="brand-name">Untuckit</td>
-              <td class="str-low">37% <span class="str-move str-dn">&#9660;15%</span></td>
-              <td>$45.00</td>
-              <td>$31.43</td>
-              <td><span class="bolo-no">SKIP</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- BOTTOM STRIP -->
-  <div class="bottom-strip">
-    <div class="wrap">
-      <h2>Stop guessing at the rack.</h2>
-      <p>
-        Fresh men's BOLO data, every Sunday. Men's only &mdash;
-        no womenswear, no kidswear.
-      </p>
-
-      <!-- SIGNUP FORM — replace with Beehiiv embed once account is set up -->
-      <div class="beehiiv-embed">
-        <form class="signup-form" onsubmit="return false;">
-          <input
-            type="email"
-            placeholder="your@email.com"
-            autocomplete="email"
-          />
-          <button class="btn" type="submit">
-            Get This Sunday's Report &rarr;
-          </button>
-        </form>
-        <p class="form-note">
-          Free to join &middot; One email per week &middot;
-          Unsubscribe anytime
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer>
-    &copy; 2026 BOLO Tracker &mdash; Built for resellers, by a
-    reseller.
-  </footer>
-
-<script>
-(function () {
-  var RAW = [
-    { title: 'Faherty Brand linen shirt sz M blue stripe',
-      price: '$18', sold: '47 sold', date: '3d ago' },
-    { title: 'Billy Reid cotton Oxford sz L cream',
-      price: '$12', sold: '39 sold', date: '1d ago' },
-    { title: 'Peter Millar summer comfort polo sz XL',
-      price: '$9',  sold: '31 sold', date: '5d ago' },
-    { title: 'Untuckit slim fit button-down sz L gray',
-      price: '$11', sold: '8 sold',  date: '7d ago' },
-    { title: 'Faherty hemp blend tee sz S heather',
-      price: '$7',  sold: '22 sold', date: '2d ago' },
-    { title: 'Billy Reid Elton shirt sz M washed indigo',
-      price: '$15', sold: '44 sold', date: '4d ago' },
-    { title: 'RRL slim fit chino sz 32x30 olive',
-      price: '$22', sold: '19 sold', date: '1d ago' },
-    { title: 'Todd Snyder camp collar sz L floral',
-      price: '$14', sold: '28 sold', date: '6d ago' },
-  ];
-
-  var OUTPUT = [
-    { brand: 'Faherty',      str: '325%', profit: '$57', bolo: true },
-    { brand: 'Billy Reid',   str: '314%', profit: '$52', bolo: true },
-    { brand: 'Peter Millar', str: '231%', profit: '$46', bolo: true },
-    { brand: 'Todd Snyder',  str: '188%', profit: '$41', bolo: true },
-    { brand: 'Untuckit',     str: '37%',  profit: '$31', bolo: false },
-  ];
-
-  var rawRows   = document.getElementById('pvRawRows');
-  var cards     = document.getElementById('pvCards');
-  var particles = document.getElementById('pvParticles');
-  var viz       = document.getElementById('pipelineViz');
-  if (!viz) return;
-
-  var tickerInterval = null;
-
-  function buildRow(listing, delay) {
-    var el = document.createElement('div');
-    el.className = 'pv-row';
-    el.style.animationDelay = delay + 'ms';
-    el.innerHTML =
-      '<div class="pv-row-title">' + listing.title + '</div>' +
-      '<div class="pv-row-meta"><span>' + listing.price +
-      '</span><span>' + listing.sold + '</span><span>' +
-      listing.date + '</span></div>';
-    return el;
-  }
-
-  function buildCard(item) {
-    var el = document.createElement('div');
-    el.className = 'pv-card ' +
-      (item.bolo ? 'pv-card--bolo' : 'pv-card--skip');
-    el.innerHTML =
-      '<div class="pv-card-brand">' + item.brand + '</div>' +
-      '<div class="pv-card-meta">' + item.str +
-      ' \u00b7 ' + item.profit + '</div>' +
-      '<div class="pv-badge ' +
-      (item.bolo ? 'pv-badge--bolo' : 'pv-badge--skip') + '">' +
-      (item.bolo ? 'BOLO' : 'SKIP') + '</div>';
-    return el;
-  }
-
-  function spawnParticle() {
-    var p = document.createElement('div');
-    p.className = 'pv-particle';
-    p.style.setProperty('--ty', (20 + Math.random() * 60) + '%');
-    p.style.setProperty('--dur',
-      (0.9 + Math.random() * 0.6).toFixed(2) + 's');
-    p.style.setProperty('--delay',
-      (Math.random() * 0.4).toFixed(2) + 's');
-    particles.appendChild(p);
-    setTimeout(function () { p.remove(); }, 5000);
-  }
-
-  function reset() {
-    rawRows.innerHTML = '';
-    cards.innerHTML = '';
-    particles.innerHTML = '';
-    clearInterval(tickerInterval);
-  }
-
-  function runCycle() {
-    reset();
-
-    RAW.forEach(function (listing, i) {
-      rawRows.appendChild(buildRow(listing, i * 180));
-    });
-
-    tickerInterval = setInterval(spawnParticle, 180);
-
-    setTimeout(function () {
-      Array.from(rawRows.children).forEach(function (r, i) {
-        setTimeout(function () {
-          r.classList.add('pv-row--scanning');
-        }, i * 100);
-      });
-    }, 1400);
-
-    setTimeout(function () {
-      OUTPUT.forEach(function (item, i) {
-        var card = buildCard(item);
-        cards.appendChild(card);
-        setTimeout(function () {
-          requestAnimationFrame(function () {
-            card.classList.add('pv-card--visible');
-          });
-        }, i * 320 + 50);
-      });
-    }, 3200);
-
-    setTimeout(function () {
-      clearInterval(tickerInterval);
-    }, 5800);
-
-    setTimeout(function () {
-      viz.style.transition = 'opacity .6s ease';
-      viz.style.opacity = '0';
-    }, 7400);
-
-    setTimeout(function () {
-      viz.style.transition = 'none';
-      viz.style.opacity = '.18';
-      runCycle();
-    }, 8400);
-  }
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    RAW.slice(0, 6).forEach(function (l) {
-      var r = buildRow(l, 0);
-      r.style.opacity = '1';
-      r.style.animation = 'none';
-      rawRows.appendChild(r);
-    });
-    OUTPUT.forEach(function (item) {
-      var c = buildCard(item);
-      c.classList.add('pv-card--visible');
-      cards.appendChild(c);
-    });
-  } else {
-    setTimeout(runCycle, 600);
-  }
-})();
-</script>
 </body>
 </html>
